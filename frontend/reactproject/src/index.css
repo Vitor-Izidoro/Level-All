@@ -96,6 +96,7 @@ body, html, #root {
   justify-content: flex-start;
   letter-spacing: 1px;
   box-shadow: none;
+  text-decoration: none; /* Remove underline */
 }
 
 .sidebar-btn.animated:hover, .sidebar-btn.animated:focus {
@@ -273,4 +274,47 @@ body, html, #root {
   background: #a48ad4;
   color: #3a3341;
   transform: scale(1.05);
+}
+
+/* Botão de perfil estilo Reddit */
+.profile-reddit-btn {
+  display: flex;
+  align-items: center;
+  background: #3a3341;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  margin-top: 3px;
+}
+
+.profile-reddit-btn:hover {
+  background: #a48ad4;
+}
+
+.profile-reddit-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.profile-reddit-name {
+  flex: 1;
+  font-weight: bold;
+  color: #fff;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-reddit-icon {
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
 }

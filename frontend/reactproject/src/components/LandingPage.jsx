@@ -12,7 +12,7 @@ function LandingPage() {
       handle: "@acryslayneoficial",
       text: "GENTEEEEEE e esse jogo que trouxe uma narração super acessível pra quem tem deficiência visual???? Simplesmente perfeito, parabéns aos sound engenieers!!!",
       hashtags: "#deficientevisual #blind #acessibilidade",
-      image: "/image.png" // The Last of Us Part II é referência em acessibilidade
+      image: "/image.png" 
     }
   ]);
   const [logo, setLogo] = useState(null);
@@ -55,39 +55,39 @@ function LandingPage() {
         <nav className="sidebar-nav">
           <ul>
             <li>
-              <button className="sidebar-btn animated">
+              <Link to="/" className="sidebar-btn animated">
                 <span role="img" aria-label="Página Inicial">🏠</span> Página Inicial
-              </button>
+              </Link>
             </li>
             <li>
-              <button className="sidebar-btn animated">
+              <Link to="/explorar" className="sidebar-btn animated">
                 <span role="img" aria-label="Explorar">#</span> Explorar
-              </button>
+              </Link>
             </li>
             <li>
-              <button className="sidebar-btn animated">
+              <Link to="/tags" className="sidebar-btn animated">
                 <span role="img" aria-label="Suas tags">🏷️</span> Suas tags
-              </button>
+              </Link>
             </li>
             <li>
-              <button className="sidebar-btn animated">
+              <Link to="/mensagens" className="sidebar-btn animated">
                 <span role="img" aria-label="Mensagens">💬</span> Mensagens
-              </button>
+              </Link>
             </li>
             <li>
-              <button className="sidebar-btn animated">
+              <Link to="/notificacoes" className="sidebar-btn animated">
                 <span role="img" aria-label="Notificações">🔔</span> Notificações
-              </button>
+              </Link>
             </li>
             <li>
-              <button className="sidebar-btn animated">
+              <Link to="/perfil" className="sidebar-btn animated">
                 <span role="img" aria-label="Perfil">👤</span> Perfil
-              </button>
+              </Link>
             </li>
             <li>
-              <button className="sidebar-btn animated">
+              <Link to="/comunidades" className="sidebar-btn animated">
                 <span role="img" aria-label="Comunidades">👥</span> Comunidades
-              </button>
+              </Link>
             </li>
           </ul>
         </nav>
@@ -95,11 +95,6 @@ function LandingPage() {
           <button className="sidebar-btn animated">
             <span role="img" aria-label="Configurações">⚙️</span> Configurações
           </button>
-        </div>
-        <div className="goto-users-fixed">
-          <Link to="/usuarios">
-            <button className="goto-users-btn">Lista de Favs do Ale</button>
-          </Link>
         </div>
       </aside>
       <main className="main-content">
