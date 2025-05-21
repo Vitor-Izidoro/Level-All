@@ -31,9 +31,11 @@ body, html, #root {
 
 .sidebar-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;    /* Alinha logo e texto lado a lado */
   align-items: center;
+  justify-content: center;
   margin-bottom: 32px;
+  gap: 14px;              /* Espaço entre logo e texto */
 }
 
 .logo-circle {
@@ -44,7 +46,7 @@ body, html, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-bottom: 0;       /* Remove margem inferior */
   box-shadow: 0 2px 8px rgba(60, 40, 90, 0.12);
 }
 
