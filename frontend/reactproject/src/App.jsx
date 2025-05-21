@@ -1,7 +1,19 @@
 import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LandingPage from "./components/LandingPage";
 import DataList from './components/DataList';
 import UserForm from './components/UserForm';
-import { createUser, updateUser as updateUserApi, deleteUser as deleteUserApi } from './config/api';
+import { 
+    createUserGamer,
+    createUserDeveloper,
+    createUserInvestor,
+    createUserAdmin,
+    updateUserGamer,
+    updateUserDeveloper,
+    updateUserInvestor,
+    updateUserAdmin,
+    deleteUser
+} from './config/api';
 import './App.css';
 
 function App(){
@@ -45,14 +57,34 @@ function App(){
     async function submitUser(userData) {
         try {
             if (isAddMode) {
-                // criar novo usuário
-                await createUser(userData);
+                // Escolha a função de criação conforme o tipo
+                if (userData.tipo === 'admin') {
+                    await createUserAdmin(userData);
+                } else if (userData.tipo === 'gamer') {
+                    await createUserGamer(userData);
+                } else if (userData.tipo === 'developer') {
+                    await createUserDeveloper(userData);
+                } else if (userData.tipo === 'investor') {
+                    await createUserInvestor(userData);
+                } else {
+                    throw new Error('Tipo de usuário inválido');
+                }
                 alert('Usuário adicionado com sucesso');
                 closeModal();
                 window.location.reload();
             } else if (isUpdateMode) {
-                // atualizar usuário existente
-                await updateUserApi(selectedUser.id, userData);
+                // Escolha a função de update conforme o tipo
+                if (userData.tipo === 'admin') {
+                    await updateUserAdmin(selectedUser.username, userData);
+                } else if (userData.tipo === 'gamer') {
+                    await updateUserGamer(selectedUser.username, userData);
+                } else if (userData.tipo === 'developer') {
+                    await updateUserDeveloper(selectedUser.username, userData);
+                } else if (userData.tipo === 'investor') {
+                    await updateUserInvestor(selectedUser.username, userData);
+                } else {
+                    throw new Error('Tipo de usuário inválido');
+                }
                 alert('Usuário atualizado com sucesso');
                 closeModal();
                 window.location.reload();
@@ -72,47 +104,33 @@ function App(){
     }
 
     return(
-        <div>
-            {isModalOpen && isViewMode && selectedUser ? (
-                <div className="modal-container">
-                    <div className="user-detail-modal">
-                        <h2>Detalhes do usuário</h2>
-                        <div className="user-detail-content">
-                            <p><strong>Nome:</strong> {selectedUser.nome}</p>
-                            <p><strong>Gênero:</strong> {selectedUser.genero}</p>
-                            <p><strong>Email:</strong> {selectedUser.email}</p>
-                            <p><strong>Telefone:</strong> {selectedUser.telefone}</p>
-                            <p><strong>Endereço:</strong> {selectedUser.endereco}</p>
-                            <p><strong>Filme favorito:</strong> {selectedUser.filmeFav}</p>
-                        </div>
-                        <div className="modal-actions">
-                            <button onClick={() => updateUser(selectedUser)} className="update-button">
-                                Editar Usuário
-                            </button>
-                            <button onClick={closeModal} className="cancel-button">
-                                Fechar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            ) : isModalOpen && (isAddMode || isUpdateMode) ? (
-                <UserForm 
-                    user={selectedUser} 
+        <Router>
+            <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route
+                    path="/usuarios"
+                    element={
+                        <DataList
+                            viewUser={viewUser}
+                            updateUser={updateUser}
+                            deleteUser={deleteUser}
+                            isModalOpen={isModalOpen}
+                            selectedUser={selectedUser}
+                            closeModal={closeModal}
+                        />
+                    }
+                />
+            </Routes>
+            {/* Se quiser manter o modal global, pode colocar aqui */}
+            {isModalOpen && (isAddMode || isUpdateMode) && (
+                <UserForm
+                    user={selectedUser}
                     isAddMode={isAddMode}
                     onSubmit={submitUser}
                     onCancel={closeModal}
                 />
-            ) : (
-                <DataList 
-                    viewUser={viewUser}
-                    updateUser={updateUser}
-                    deleteUser={deleteUser}
-                    isModalOpen={isModalOpen} 
-                    selectedUser={selectedUser} 
-                    closeModal={closeModal} 
-                />
             )}
-        </div>
+        </Router>
     );
 }
 
