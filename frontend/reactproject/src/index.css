@@ -15,6 +15,10 @@ body, html, #root {
 }
 
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
   width: 220px;
   background: #3a3341;
   color: #fff;
@@ -22,7 +26,7 @@ body, html, #root {
   flex-direction: column;
   justify-content: space-between;
   padding: 24px 0;
-  position: relative;
+  z-index: 100;
 }
 
 .sidebar-header {
@@ -109,6 +113,7 @@ body, html, #root {
 }
 
 .main-content {
+  margin-left: 220px; /* Compensa a sidebar fixa */
   flex: 1;
   padding: 32px 0 0 0;
   display: flex;
@@ -177,7 +182,7 @@ body, html, #root {
 }
 
 .feed-card {
-  background: #a48ad4;
+  background: #fff; /* Muda a cor do card para branco */
   border-radius: 24px;
   padding: 24px;
   width: 600px;
@@ -189,6 +194,10 @@ body, html, #root {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
+  background: #a48ad4; /* Mantém o header roxo */
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  padding: 18px 24px 12px 24px;
 }
 
 .avatar {
@@ -211,8 +220,9 @@ body, html, #root {
   font-size: 13px;
 }
 
-.feed-content p {
-  color: #fff;
+.feed-content p,
+.feed-text {
+  color: #111; /* Texto preto na publicação */
   margin-bottom: 8px;
   font-size: 15px;
 }

@@ -10,9 +10,9 @@ function LandingPage() {
     {
       user: "Cryslayne Farias",
       handle: "@acryslayneoficial",
-      text: "GENTEEEEEE e esse jogo que trouxe uma narração super acessível pra que tem deficiência visual???? Simplesmente perfeito, parabéns aos sound engenieers!!!",
+      text: "GENTEEEEEE e esse jogo que trouxe uma narração super acessível pra quem tem deficiência visual???? Simplesmente perfeito, parabéns aos sound engenieers!!!",
       hashtags: "#deficientevisual #blind #acessibilidade",
-      image: "https://br.pinterest.com/pin/4644405860149236/"
+      image: "/image.png" // The Last of Us Part II é referência em acessibilidade
     }
   ]);
   const [logo, setLogo] = useState(null);
@@ -25,7 +25,7 @@ function LandingPage() {
         handle: "@voce",
         text: postText,
         hashtags: "",
-        image: postImage
+        image: postImage ? postImage : null
       },
       ...feed
     ]);
@@ -183,13 +183,11 @@ function LandingPage() {
             <div className="feed-card" key={idx}>
               <div className="feed-header">
                 <div className="avatar"></div>
-                <div>
-                  <span className="feed-user">{item.user}</span>
-                  <span className="feed-handle">{item.handle}</span>
-                </div>
+                <span className="feed-user">{item.user}</span>
+                <span className="feed-handle">{item.handle}</span>
               </div>
               <div className="feed-content">
-                <p>{item.text}</p>
+                <p className="feed-text">{item.text}</p>
                 <span className="hashtags">{item.hashtags}</span>
                 {item.image && (
                   <img className="feed-image" src={item.image} alt="Imagem do post" />
@@ -223,6 +221,10 @@ function LandingPage() {
           border-radius: 16px;
           min-width: 340px;
           max-width: 90vw;
+        }
+        .modal-content textarea {
+          color: #111;
+          background:rgba(228, 200, 246, 0.65);
         }
         .search-bar {
           width: 75%;
@@ -285,12 +287,78 @@ function LandingPage() {
         }
 
         .feed-card {
-          background: #a48ad4;
+          background: #fff;
           border-radius: 24px;
-          padding: 30px;
-          width: 750px; /* era 600px, aumente 25% */
+          padding: 0;
+          width: 750px;
           margin-bottom: 32px;
           box-shadow: 0 2px 8px rgba(60, 40, 90, 0.08);
+          overflow: hidden;
+          border: none;
+        }
+
+        .feed-header {
+          background: #a48ad4;
+          padding: 30px 30px 18px 30px;
+          display: flex;
+          align-items: center;
+          border-top-left-radius: 24px;
+          border-top-right-radius: 24px;
+        }
+
+        .feed-user {
+          font-weight: bold;
+          color: #111;
+          font-size: 1.13rem;
+          margin-left: 10px;
+        }
+
+        .feed-handle {
+          color: #fff;
+          font-size: 1.02rem;
+          margin-left: 8px;
+        }
+
+        .feed-divider {
+          border: none;
+          border-top: 3px solid #a48ad4;
+          margin: 0 30px;
+        }
+
+        .feed-content {
+          background: #fff;
+          padding: 24px 30px 30px 30px;
+          border-bottom-left-radius: 24px;
+          border-bottom-right-radius: 24px;
+        }
+
+        .feed-text {
+          color: #111;
+          font-size: 1.13rem;
+          margin-bottom: 4px;
+          margin-top: 0;
+        }
+
+        .hashtags {
+          color: #a48ad4;
+          font-size: 1.02rem;
+          margin-top: 6px;
+        }
+
+        .feed-card hr {
+          border: none;
+          border-top: 2px solid #e0d1f3;
+          margin: 0 30px;
+        }
+
+        .feed-image {
+          max-width: 100%;
+          max-height: 320px;
+          width: auto;
+          height: auto;
+          display: block;
+          margin: 8px auto 0 auto;
+          object-fit: contain;
         }
 
         .profile-reddit-btn {
@@ -327,6 +395,17 @@ function LandingPage() {
           font-size: 1.08rem;
           color: #333;
           font-weight: 600;
+        }
+
+        .publish-section {
+          position: static;
+          top: auto;
+          right: auto;
+          z-index: 1000;
+          width: 100%;
+          max-width: 750px;
+          margin: 0 auto 32px auto;
+          background: transparent;
         }
       `}</style>
     </div>
