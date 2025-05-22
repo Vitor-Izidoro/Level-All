@@ -1,0 +1,73 @@
+.user-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.user-card {
+    background-color: #e9edc9;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background-color: #ccd5ae;
+}
+
+.user-info {
+    margin-bottom: 15px;
+}
+
+.user-info h3 {
+    margin: 0 0 10px 0;
+    color: #283618;
+    font-size: 18px;
+}
+
+.user-details {
+    color: #606c38;
+    font-size: 14px;
+}
+
+.user-details > div {
+    margin-bottom: 5px;
+}
+
+.user-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    flex: 1;
+}
+
+.view-button {
+    background-color: #606c38;
+    color: white;
+}
+
+.view-button:hover {
+    background-color: #3d4524;
+}
+
+.delete-button {
+    background-color: #bc6c25;
+    color: white;
+}
+
+.delete-button:hover {
+    background-color: #653c18;
+} 

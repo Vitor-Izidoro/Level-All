@@ -1,0 +1,108 @@
+.form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.user-form {
+    background-color: #444;
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.user-form h2 {
+    color: white;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    color: white;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #666;
+    background-color: #555;
+    color: white;
+    box-sizing: border-box;
+}
+
+.form-group input:disabled {
+    background-color: #777;
+    cursor: not-allowed;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-group select {
+    cursor: pointer;
+}
+
+.form-group select option {
+    background-color: #555;
+    color: white;
+}
+
+.error {
+    color: #bc6c25;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.submit-button {
+    background-color: #606c38;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    flex: 1;
+}
+
+.submit-button:hover {
+    background-color: #3d4524;
+}
+
+.cancel-button {
+    background-color: #7f8c8d;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    flex: 1;
+}
+
+.cancel-button:hover {
+    background-color: #6c7879;
+} 
