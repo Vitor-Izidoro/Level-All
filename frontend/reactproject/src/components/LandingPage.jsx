@@ -1,21 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../index.css";
+import ProfileMenu from './ProfileMenu'; // ajuste o caminho se necessário
 
 function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [feed, setFeed] = useState([]);
   const [postText, setPostText] = useState("");
   const [postImage, setPostImage] = useState("");
-  const [feed, setFeed] = useState([
-    {
-      user: "Cryslayne Farias",
-      handle: "@acryslayneoficial",
-      text: "GENTEEEEEE e esse jogo que trouxe uma narração super acessível pra quem tem deficiência visual???? Simplesmente perfeito, parabéns aos sound engenieers!!!",
-      hashtags: "#deficientevisual #blind #acessibilidade",
-      image: "/image.png" 
-    }
-  ]);
   const [logo, setLogo] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [userId, setUserId] = useState(""); // ou valor padrão do usuário logado
+  const [texto, setTexto] = useState("");
+  const [imagem, setImagem] = useState(null);
 
   const handlePublish = () => {
     if (postText.trim() === "") return;
@@ -43,9 +40,50 @@ function LandingPage() {
     }
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('user_id', 1); // ou o id do usuário logado
+    formData.append('texto', postText);
+    if (imagem) formData.append('imagem', imagem);
+
+    const response = await fetch('http://localhost:3000/posts', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      setPostText("");
+      setImagem(null);
+      setPostImage("");
+      setIsModalOpen(false);
+      fetchFeed();
+    }
+  };
+
+  const fetchFeed = async () => {
+    const res = await fetch('http://localhost:3000/posts');
+    const posts = await res.json();
+    setFeed(posts.map(post => ({
+      user: "Usuário",
+      handle: "@usuario",
+      text: post.texto,
+      hashtags: "",
+      image: post.imagem ? `http://localhost:3000/uploads/${post.imagem}` : null
+    })));
+  };
+
+  useEffect(() => {
+    fetchFeed();
+  }, []);
+
   return (
     <div className="landing-root">
-      <aside className="sidebar">
+      <aside className={`sidebar${sidebarOpen ? '' : ' closed'}`}>
         <div className="sidebar-header">
           <div className="logo-circle">
             <img src="/logo.jpeg" alt="Logo Level All" className="logo-img" />
@@ -96,11 +134,15 @@ function LandingPage() {
             <span role="img" aria-label="Configurações">⚙️</span> Configurações
           </button>
         </div>
+        <button onClick={toggleSidebar} className="sidebar-toggle-btn">
+          {sidebarOpen ? '<' : '>'}
+        </button>
       </aside>
       <main className="main-content">
         <header className="main-header">
           <input className="search-bar" placeholder="Pesquisar..." />
-          <div className="profile-icon">👤</div>
+          
+          <ProfileMenu />
         </header>
         <div className="publish-section">
           <button
@@ -115,61 +157,65 @@ function LandingPage() {
           <div className="modal-overlay">
             <div className="modal-content">
               <h2>Publicar no Feed</h2>
-              <textarea
-                value={postText}
-                onChange={e => setPostText(e.target.value)}
-                placeholder="Digite sua mensagem..."
-                rows={4}
-                style={{ width: "100%", marginBottom: 12 }}
-              />
-              <div
-                className="dropzone"
-                onDragOver={e => e.preventDefault()}
-                onDrop={e => {
-                  e.preventDefault();
-                  const file = e.dataTransfer.files[0];
-                  if (file && file.type.startsWith("image/")) {
-                    const reader = new FileReader();
-                    reader.onload = ev => setPostImage(ev.target.result);
-                    reader.readAsDataURL(file);
-                  }
-                }}
-                onClick={() => document.getElementById("fileInput").click()}
-              >
-                {postImage ? (
-                  <img src={postImage} alt="Preview" className="feed-image" style={{ maxHeight: 180, margin: 8 }} />
-                ) : (
-                  <span>
-                    Arraste uma imagem{" "}
-                    <span style={{ color: "#1976d2", textDecoration: "underline", cursor: "pointer" }}>
-                      aqui
-                    </span>{" "}
-                    ou clique para selecionar
-                  </span>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  onChange={e => {
-                    const file = e.target.files[0];
+              <form onSubmit={handleSubmit}>
+                <textarea
+                  value={postText}
+                  onChange={e => setPostText(e.target.value)}
+                  placeholder="Digite sua mensagem..."
+                  rows={4}
+                  style={{ width: "100%", marginBottom: 12 }}
+                />
+                <div
+                  className="dropzone"
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => {
+                    e.preventDefault();
+                    const file = e.dataTransfer.files[0];
                     if (file && file.type.startsWith("image/")) {
+                      setImagem(file);
                       const reader = new FileReader();
                       reader.onload = ev => setPostImage(ev.target.result);
                       reader.readAsDataURL(file);
                     }
                   }}
-                  id="fileInput"
-                />
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-                <button onClick={() => setIsModalOpen(false)} className="goto-users-btn" style={{ background: "#ccc", color: "#333" }}>
-                  Cancelar
-                </button>
-                <button onClick={handlePublish} className="goto-users-btn">
-                  Publicar
-                </button>
-              </div>
+                  onClick={() => document.getElementById("fileInput").click()}
+                >
+                  {postImage ? (
+                    <img src={postImage} alt="Preview" className="feed-image" style={{ maxHeight: 180, margin: 8 }} />
+                  ) : (
+                    <span>
+                      Arraste uma imagem{" "}
+                      <span style={{ color: "#1976d2", textDecoration: "underline", cursor: "pointer" }}>
+                        aqui
+                      </span>{" "}
+                      ou clique para selecionar
+                    </span>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={e => {
+                      const file = e.target.files[0];
+                      if (file && file.type.startsWith("image/")) {
+                        setImagem(file);
+                        const reader = new FileReader();
+                        reader.onload = ev => setPostImage(ev.target.result);
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    id="fileInput"
+                  />
+                </div>
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="goto-users-btn" style={{ background: "#ccc", color: "#333" }}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="goto-users-btn">
+                    Publicar
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -194,7 +240,7 @@ function LandingPage() {
       </main>
       <button className="profile-reddit-btn">
         <img src="/logo.jpeg" alt="Perfil" className="profile-reddit-img" />
-        <span className="profile-reddit-name">SeuNome</span>
+        <span className="profile-reddit-name">Seu Nome</span>
         <svg width="18" height="18" style={{marginLeft: 6}} viewBox="0 0 20 20" fill="none">
           <path d="M6 8l4 4 4-4" stroke="#a48ad4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
@@ -401,6 +447,40 @@ function LandingPage() {
           max-width: 750px;
           margin: 0 auto 32px auto;
           background: transparent;
+        }
+
+        .sidebar.closed {
+          width: 80px;
+        }
+
+        .sidebar.closed .sidebar-header,
+        .sidebar.closed .sidebar-nav,
+        .sidebar.closed .sidebar-footer {
+          display: none;
+        }
+
+        .sidebar-toggle-btn {
+          position: absolute;
+          top: 20px;
+          right: -40px;
+          width: 40px;
+          height: 40px;
+          background: #a48ad4;
+          color: #fff;
+          border: none;
+          border-radius: 20px;
+          cursor: pointer;
+          transition: background 0.2s, transform 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          z-index: 1001;
+        }
+
+        .sidebar-toggle-btn:hover {
+          background: #9b7dc2;
+          transform: translateX(2px);
         }
       `}</style>
     </div>

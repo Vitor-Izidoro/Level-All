@@ -2,10 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import pool from './config/database.js';
+import multer from 'multer';
 
 dotenv.config();
 
 const app = express();
+const upload = multer({ dest: 'uploads/' });
+app.use('/uploads', express.static('uploads'));
 
 // configuração do CORS
 const corsOptions = {
@@ -110,7 +113,7 @@ app.post('/user_developer', async (req, res) => {
 // cria um novo usuário investor
 app.post('/user_investor', async (req, res) => {
   try {
-    const { usrname, nome, email, senha } = req.body;
+    const { usrname, nome, email, senha, cnpj } = req.body;
     const [result] = await pool.query(
       'INSERT INTO users (username, nome, email, senha, cnpj) VALUES (?, ?, ?, ?, ?)',
       [usrname, nome, email, senha, cnpj]
@@ -240,6 +243,35 @@ app.delete('/user/:username', async (req, res) => {
   } catch (error) {
     console.error('Error deleting user:', error);
     res.status(500).json({ error: 'Error deleting user from database' });
+  }
+});
+
+// Cria uma nova publicação
+app.post('/posts', upload.single('imagem'), async (req, res) => {
+  try {
+    const { user_id, texto } = req.body;
+    const imagem = req.file ? req.file.filename : null;
+    const [result] = await pool.query(
+      'INSERT INTO posts (user_id, texto, imagem) VALUES (?, ?, ?)',
+      [user_id, texto, imagem]
+    );
+    res.status(201).json({ id: result.insertId, user_id, texto, imagem });
+  } catch (error) {
+    console.error('Erro ao criar publicação:', error);
+    res.status(500).json({ error: 'Erro ao criar publicação' });
+  }
+});
+
+// Busca todas as publicações
+app.get('/posts', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM posts ORDER BY created_at DESC'
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('Erro ao buscar publicações:', error);
+    res.status(500).json({ error: 'Erro ao buscar publicações' });
   }
 });
 
