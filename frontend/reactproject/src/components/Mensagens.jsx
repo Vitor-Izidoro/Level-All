@@ -1,4 +1,5 @@
 import React from "react";
+import ChatApp from "./chat/ChatApp";
 
 function Mensagens() {
   return (
@@ -29,13 +30,7 @@ function Mensagens() {
         </div>
       </aside>
       <main className="main-content">
-        <header className="main-header">
-          <input className="search-bar" placeholder="Pesquisar..." />
-          
-        </header>
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 40 }}>
-          <h2 style={{ color: "#3a3341" }}>Mensagens</h2>
-        </div>
+        < ChatApp />
       </main>
     </div>
   );
