@@ -16,7 +16,7 @@ const ContactList = ({ contacts, selectedContact, onSelectContact }) => {
             </div>
 
             <div className="search-bar">
-                <i className="fas fa-search"></i>
+                <i className="fas fa-search search-icon"></i>
                 <input
                     type="text"
                     placeholder="Pesquisar conversas..."

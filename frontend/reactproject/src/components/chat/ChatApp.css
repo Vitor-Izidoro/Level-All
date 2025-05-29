@@ -83,17 +83,15 @@ body {
     height: 60%;
 }
 
-/* Lista de Contatos */
-.contacts {
-    width: 280px;
-    background-color: var(--contacts-bg);
-    border-right: 1px solid var(--border-color);
+.groups, .contacts {
+    width: 300px;
+    border-right: 1px solid #ddd;
     display: flex;
     flex-direction: column;
-    transition: all 0.3s ease;
+    background-color: #fff;
 }
 
-.contacts-header {
+.contacts-header, .groups-header {
     padding: 20px;
     display: flex;
     justify-content: space-between;
@@ -101,14 +99,15 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
-.contacts-header h1 {
+.contacts-header h1, .groups-header h1 {
     font-size: 18px;
     font-weight: 600;
 }
 
 .search-bar {
-    padding: 0 20px 15px;
-    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 10px;
 }
 
 .search-bar input {
@@ -134,52 +133,56 @@ body {
     color: var(--text-light);
 }
 
-.contact-list {
+.contact-list, .group-list {
     flex: 1;
     overflow-y: auto;
 }
 
-.contact-item {
+.group-item, .contact-item {
     display: flex;
     align-items: center;
-    padding: 12px 20px;
+    padding: 10px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-    border-left: 3px solid transparent;
+    transition: background 0.2s;
 }
 
-.contact-item:hover {
+.contact-item:hover, .group-item:hover {
     background-color: rgba(0, 0, 0, 0.03);
 }
 
-.contact-item.active {
+.contact-item.active, .group-item:active {
     background-color: white;
     border-left: 3px solid var(--primary-color);
 }
 
-.contact-avatar {
+.group-avatar, .contact-avatar {
     width: 40px;
     height: 40px;
+    background-color: #ddd;
     border-radius: 50%;
-    background-color: var(--primary-color);
-    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 12px;
-    font-weight: 500;
+    margin-right: 10px;
+    font-size: 20px;
 }
 
-.contact-info {
+.group-avatar.large {
+    width: 50px;
+    height: 50px;
+    font-size: 28px;
+}
+
+.contact-info, .group-info {
     flex: 1;
 }
 
-.contact-name {
+.contact-name, .group-name {
     font-weight: 500;
     margin-bottom: 2px;
 }
 
-.contact-last-msg {
+.contact-last-msg, .group-last-msg {
     font-size: 13px;
     color: var(--text-light);
     white-space: nowrap;
@@ -187,20 +190,20 @@ body {
     text-overflow: ellipsis;
 }
 
-/* Área de Chat */
 .chat-area {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--chat-bg);
+    background-color: #f9f9f9;
 }
 
+
 .chat-header {
-    padding: 15px 25px;
-    border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    background-color: white;
+    padding: 10px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
 }
 
 .chat-header-info {
@@ -231,24 +234,19 @@ body {
 
 .chat-messages {
     flex: 1;
-    padding: 20px;
+    padding: 10px;
     overflow-y: auto;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABmJLR0QA/wD/AP+gvaeTAAAA+UlEQVQ4y+3UMUoDQRTG8Z8psJBUKTyAR7ATvIBgYSM2Fj6w8gR2Fp7AE3gBG0GxECwsBCGFFhaCjYVgIYgQJ4VvYIfJ7M4mO4EHwzDz3vz/MzPMvP+6xjGJZdzgDm+4xwGm0vQkHvGZqQ9cYz5NH+E1J5yrJ8yl6QO8VQjn6g4zaboXz1WEc3WJbpruxFMN4Vydo5OmO/FYQzhXp+hU0XWEs9pFu4puIpzVFlpVdFPhrDbQrKKbDme1hkYV3Uw4q1U0quhmw1kto1lFNxfOagnNKrr5cFYLlXQr4awW8FZFtxrO6hvfk3e3j4VwVt/4wHtKd4KFcFbfeMdrSneKpXBWX3jDS0p3huVwVp94xnNKd46VcFafeMJT/AN/AbE1jYx8x1uLAAAAAElFTkSuQmCC');
-    background-repeat: repeat;
 }
 
 .message-input {
-    padding: 15px 25px;
-    border-top: 1px solid var(--border-color);
-    background-color: white;
+    padding: 10px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
 }
 
 .input-container {
     display: flex;
     align-items: center;
-    background-color: #f8f9fa;
-    border-radius: 25px;
-    padding: 5px 15px;
 }
 
 .input-container i {
@@ -259,11 +257,11 @@ body {
 
 .input-container input {
     flex: 1;
-    border: none;
-    background: transparent;
-    padding: 10px;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
     outline: none;
-    font-size: 15px;
+    margin: 0 10px;
 }
 
 .send-button {
@@ -293,13 +291,11 @@ body {
 }
 
 .message {
-  max-width: 70%;
-  padding: 10px 14px;
-  margin-bottom: 10px;
-  border-radius: 16px;
-  font-size: 14px;
-  line-height: 1.4;
-  word-wrap: break-word;
+    margin-bottom: 10px;
+    max-width: 60%;
+    padding: 8px 12px;
+    border-radius: 20px;
+    background-color: #e1ffc7;
 }
 
 .sent {
@@ -313,4 +309,33 @@ body {
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
   border-bottom-left-radius: 0;
+}
+
+
+.error-message, .empty-message {
+    padding: 10px;
+    color: red;
+    text-align: center;
+}
+
+.error-banner {
+    background-color: #ff4d4f;
+    color: white;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.error-banner i {
+    font-size: 1.2em;
 }
