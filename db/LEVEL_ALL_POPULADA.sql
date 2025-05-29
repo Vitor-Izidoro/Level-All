@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `level_all` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `level_all`;
 -- MySQL dump 10.13  Distrib 8.0.36, for Win64 (x86_64)
 --
 -- Host: 127.0.0.1    Database: level_all
@@ -52,6 +54,117 @@ INSERT INTO `authenticated_user` VALUES (1,2,'investor','mpereira','Mariana Pere
 UNLOCK TABLES;
 
 --
+-- Table structure for table `chat_user`
+--
+
+DROP TABLE IF EXISTS `chat_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `chat_user` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_type` enum('developer','gamer','investor') NOT NULL,
+  `user_id` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `chat_user`
+--
+
+LOCK TABLES `chat_user` WRITE;
+/*!40000 ALTER TABLE `chat_user` DISABLE KEYS */;
+/*!40000 ALTER TABLE `chat_user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `contacts`
+--
+
+DROP TABLE IF EXISTS `contacts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contacts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `contact_user_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `contact_user_id` (`contact_user_id`),
+  CONSTRAINT `contacts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `chat_user` (`id`),
+  CONSTRAINT `contacts_ibfk_2` FOREIGN KEY (`contact_user_id`) REFERENCES `chat_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `contacts`
+--
+
+LOCK TABLES `contacts` WRITE;
+/*!40000 ALTER TABLE `contacts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `contacts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `messages`
+--
+
+DROP TABLE IF EXISTS `messages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `messages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `contact_id` int NOT NULL,
+  `remetente_id` int NOT NULL,
+  `destinatario_id` int NOT NULL,
+  `conteudo` text NOT NULL,
+  `enviada_em` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `contact_id` (`contact_id`),
+  KEY `remetente_id` (`remetente_id`),
+  KEY `destinatario_id` (`destinatario_id`),
+  CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`contact_id`) REFERENCES `contacts` (`id`),
+  CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`remetente_id`) REFERENCES `chat_user` (`id`),
+  CONSTRAINT `messages_ibfk_3` FOREIGN KEY (`destinatario_id`) REFERENCES `chat_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `messages`
+--
+
+LOCK TABLES `messages` WRITE;
+/*!40000 ALTER TABLE `messages` DISABLE KEYS */;
+/*!40000 ALTER TABLE `messages` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `posts`
+--
+
+DROP TABLE IF EXISTS `posts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `posts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
+  `texto` text,
+  `imagem` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `posts`
+--
+
+LOCK TABLES `posts` WRITE;
+/*!40000 ALTER TABLE `posts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `posts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `user_admin`
 --
 
@@ -99,15 +212,6 @@ CREATE TABLE `user_developer` (
   UNIQUE KEY `email_UNIQUE` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
-CREATE TABLE posts (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT,
-  texto TEXT,
-  imagem VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 
 --
 -- Dumping data for table `user_developer`
@@ -188,4 +292,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-21 13:27:05
+-- Dump completed on 2025-05-29 11:28:26
