@@ -13,6 +13,40 @@ function LandingPage() {
   const [userId, setUserId] = useState(""); // ou valor padrão do usuário logado
   const [texto, setTexto] = useState("");
   const [imagem, setImagem] = useState(null);
+  const [search, setSearch] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  const staticPages = [
+    { name: "Mensagens", path: "/mensagens" },
+    { name: "Notificações", path: "/notificacoes" },
+    { name: "Explorar", path: "/explorar" },
+    { name: "Comunidades", path: "/comunidades" },
+    { name: "Perfil", path: "/perfil" },
+    { name: "Página Inicial", path: "/" }
+  ];
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+
+    // Sugestões de páginas
+    const pageSuggestions = staticPages.filter(page =>
+      page.name.toLowerCase().includes(value.toLowerCase())
+    );
+
+    // Sugestões do feed
+    const feedSuggestions = feed
+      .filter(item =>
+        item.text.toLowerCase().includes(value.toLowerCase())
+      )
+      .map(item => ({
+        name: item.text,
+        type: "feed"
+      }));
+
+    setSuggestions([...pageSuggestions, ...feedSuggestions]);
+  };
 
   const handlePublish = () => {
     if (postText.trim() === "") return;
@@ -140,9 +174,49 @@ function LandingPage() {
       </aside>
       <main className="main-content">
         <header className="main-header">
-          <input className="search-bar" placeholder="Pesquisar..." />
-          
-          <ProfileMenu />
+          <div className="search-bar-container">
+            <input
+              className="search-bar"
+              placeholder="Pesquisar..."
+              value={search}
+              onChange={handleSearchChange}
+              onFocus={handleSearchChange}
+              onBlur={() => setTimeout(() => setSuggestions([]), 100)}
+              onKeyDown={e => {
+                if (e.key === "Escape" || e.key === "Enter") setSuggestions([]);
+              }}
+              autoComplete="off"
+            />
+            {search && suggestions.length > 0 && (
+              <ul className="search-suggestions">
+                {suggestions.map((s, idx) =>
+                  s.path ? (
+                    <li key={idx}>
+                      <Link to={s.path} onClick={() => setSearch("")}>{s.name}</Link>
+                    </li>
+                  ) : (
+                    <li key={idx} style={{ color: "#a48ad4" }}>{s.name}</li>
+                  )
+                )}
+              </ul>
+            )}
+          </div>
+          <button
+            className="profile-reddit-btn"
+            onClick={() => setProfileMenuOpen(v => !v)}
+            onBlur={() => setTimeout(() => setProfileMenuOpen(false), 150)}
+            tabIndex={0}
+          >
+            <img src="/logo.jpeg" alt="Perfil" className="profile-reddit-img" />
+            <span className="profile-reddit-name">Seu Nome</span>
+            <svg width="18" height="18" style={{marginLeft: 6}} viewBox="0 0 20 20" fill="none">
+              <path d="M6 8l4 4 4-4" stroke="#a48ad4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <div className={`profile-reddit-dropdown${profileMenuOpen ? " open" : ""}`}>
+              <a href="/perfil" className="profile-reddit-dropdown-item">Perfil</a>
+              <a href="/configuracoes" className="profile-reddit-dropdown-item">Configurações</a>
+            </div>
+          </button>
         </header>
         <div className="publish-section">
           <button
@@ -228,7 +302,14 @@ function LandingPage() {
                 <span className="feed-handle">{item.handle}</span>
               </div>
               <div className="feed-content">
-                <p className="feed-text">{item.text}</p>
+                <p className="feed-text" dangerouslySetInnerHTML={{
+                  __html: search
+                    ? item.text.replace(
+                        new RegExp(`(${search})`, "gi"),
+                        '<mark style="background:#ffe066;color:#3a3341;border-radius:4px;">$1</mark>'
+                      )
+                    : item.text
+                }} />
                 <span className="hashtags">{item.hashtags}</span>
                 {item.image && (
                   <img className="feed-image" src={item.image} alt="Imagem do post" />
@@ -238,13 +319,6 @@ function LandingPage() {
           ))}
         </section>
       </main>
-      <button className="profile-reddit-btn">
-        <img src="/logo.jpeg" alt="Perfil" className="profile-reddit-img" />
-        <span className="profile-reddit-name">Seu Nome</span>
-        <svg width="18" height="18" style={{marginLeft: 6}} viewBox="0 0 20 20" fill="none">
-          <path d="M6 8l4 4 4-4" stroke="#a48ad4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
       {/* Modal CSS */}
       <style>{`
         .modal-overlay {
@@ -481,6 +555,35 @@ function LandingPage() {
         .sidebar-toggle-btn:hover {
           background: #9b7dc2;
           transform: translateX(2px);
+        }
+
+        .profile-reddit-dropdown {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+          z-index: 1000;
+          display: none;
+        }
+
+        .profile-reddit-dropdown.open {
+          display: block;
+        }
+
+        .profile-reddit-dropdown-item {
+          display: block;
+          padding: 12px 24px;
+          color: #333;
+          text-decoration: none;
+          font-size: 1rem;
+          transition: background 0.2s;
+        }
+
+        .profile-reddit-dropdown-item:hover {
+          background: #f3f3f3;
         }
       `}</style>
     </div>
