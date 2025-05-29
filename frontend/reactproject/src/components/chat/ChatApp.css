@@ -1,0 +1,341 @@
+  :root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --sidebar-dark: #1b263b;
+    --sidebar-light: #415a77;
+    --contacts-bg: #f8f9fa;
+    --chat-bg: #ffffff;
+    --text-dark: #2b2d42;
+    --text-light: #8d99ae;
+    --border-color: #e9ecef;
+    --unread-badge: #ef233c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    height: 100vh;
+    display: flex;
+    color: var(--text-dark);
+    background-color: #f1f3f5;
+}
+
+.app-container {
+    display: flex;
+    flex: 1 1 auto;
+    height: 100vh;
+    width: 100vw; /* Ocupa largura total da tela */
+    overflow: hidden; /* Garante que o conteúdo não ultrapasse a tela */
+}
+
+/* Sidebar de Ícones */
+.icon-sidebar {
+    width: 80px;
+    background: linear-gradient(to bottom, var(--sidebar-dark), var(--sidebar-light));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 30px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.icon-sidebar i {
+    font-size: 20px;
+    margin: 20px 0;
+    cursor: pointer;
+    color: #adb5bd;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.icon-sidebar i:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.icon-sidebar i.active {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.icon-sidebar i::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 0;
+    width: 3px;
+    background-color: white;
+    border-radius: 0 3px 3px 0;
+    transition: height 0.3s ease;
+}
+
+.icon-sidebar i.active::after {
+    height: 60%;
+}
+
+.groups, .contacts {
+    width: 300px;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+}
+
+.contacts-header, .groups-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.contacts-header h1, .groups-header h1 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 10px 15px 10px 35px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: white;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-bar input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+}
+
+.search-bar i {
+    position: absolute;
+    left: 30px;
+    top: 10px;
+    color: var(--text-light);
+}
+
+.contact-list, .group-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.group-item, .contact-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.contact-item:hover, .group-item:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.contact-item.active, .group-item:active {
+    background-color: white;
+    border-left: 3px solid var(--primary-color);
+}
+
+.group-avatar, .contact-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.group-avatar.large {
+    width: 50px;
+    height: 50px;
+    font-size: 28px;
+}
+
+.contact-info, .group-info {
+    flex: 1;
+}
+
+.contact-name, .group-name {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.contact-last-msg, .group-last-msg {
+    font-size: 13px;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+}
+
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border-bottom: 1px solid #ddd;
+}
+
+.chat-header-info {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.chat-user {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.chat-status {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.chat-actions i {
+    margin-left: 20px;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.chat-actions i:hover {
+    color: var(--primary-color);
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.message-input {
+    padding: 10px;
+    background-color: #fff;
+    border-top: 1px solid #ddd;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+}
+
+.input-container i {
+    color: var(--text-light);
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+.input-container input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    margin: 0 10px;
+}
+
+.send-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.send-button:hover {
+    background-color: var(--secondary-color);
+}
+
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.message {
+    margin-bottom: 10px;
+    max-width: 60%;
+    padding: 8px 12px;
+    border-radius: 20px;
+    background-color: #e1ffc7;
+}
+
+.sent {
+  align-self: flex-end;
+  background-color: #dcf8c6; /* verde claro do WhatsApp */
+  border-bottom-right-radius: 0;
+}
+
+.received {
+  align-self: flex-start;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-bottom-left-radius: 0;
+}
+
+
+.error-message, .empty-message {
+    padding: 10px;
+    color: red;
+    text-align: center;
+}
+
+.error-banner {
+    background-color: #ff4d4f;
+    color: white;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.error-banner i {
+    font-size: 1.2em;
+}
