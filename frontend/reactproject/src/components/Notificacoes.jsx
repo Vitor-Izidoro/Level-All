@@ -25,15 +25,13 @@ function Notificacoes() {
           <button className="sidebar-btn animated">⚙️ Configurações</button>
         </div>
         <div className="goto-users-fixed">
-          <a href="/usuarios">
-            <button className="goto-users-btn">Lista de Favs do Ale</button>
-          </a>
+         
         </div>
       </aside>
       <main className="main-content">
         <header className="main-header">
           <input className="search-bar" placeholder="Pesquisar..." />
-          <div className="profile-icon">👤</div>
+          
         </header>
         <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 40 }}>
           <h2 style={{ color: "#3a3341" }}>Notificações</h2>
