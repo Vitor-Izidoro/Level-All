@@ -32,6 +32,153 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
+// GET - Todos os contatos
+app.get('/contacts', async (req, res) => {
+  try {
+    const [rows] = await pool.query(`SELECT * FROM contacts`);
+    res.json(rows);
+  } catch (error) {
+    console.error('Erro ao buscar contatos:', error);
+    res.status(500).json({ error: 'Erro ao buscar contatos' });
+  }
+});
+
+// GET - Contato específico por ID
+app.get('/contacts/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.query(`SELECT * FROM contacts WHERE id = ?`, [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Contato não encontrado' });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Erro ao buscar contato:', error);
+    res.status(500).json({ error: 'Erro ao buscar contato' });
+  }
+});
+
+// POST - Criar novo contato
+app.post('/contacts', async (req, res) => {
+  const { user_id, contact_user_id } = req.body;
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO contacts (user_id, contact_user_id) VALUES (?, ?)`,
+      [user_id, contact_user_id]
+    );
+    const [newContact] = await pool.query(`SELECT * FROM contacts WHERE id = ?`, [result.insertId]);
+    res.status(201).json(newContact[0]);
+  } catch (error) {
+    console.error('Erro ao criar contato:', error);
+    res.status(500).json({ error: 'Erro ao criar contato' });
+  }
+});
+
+// PUT - Atualizar contato existente
+app.put('/contacts/:id', async (req, res) => {
+  const { user_id, contact_user_id } = req.body;
+  try {
+    const [result] = await pool.query(
+      `UPDATE contacts SET user_id = ?, contact_user_id = ? WHERE id = ?`,
+      [user_id, contact_user_id, req.params.id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Contato não encontrado' });
+    }
+    const [updatedContact] = await pool.query(`SELECT * FROM contacts WHERE id = ?`, [req.params.id]);
+    res.json(updatedContact[0]);
+  } catch (error) {
+    console.error('Erro ao atualizar contato:', error);
+    res.status(500).json({ error: 'Erro ao atualizar contato' });
+  }
+});
+
+// DELETE - Remover contato
+app.delete('/contacts/:id', async (req, res) => {
+  try {
+    const [result] = await pool.query(`DELETE FROM contacts WHERE id = ?`, [req.params.id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Contato não encontrado' });
+    }
+    res.json({ message: 'Contato excluído com sucesso' });
+  } catch (error) {
+    console.error('Erro ao excluir contato:', error);
+    res.status(500).json({ error: 'Erro ao excluir contato' });
+  }
+});
+
+// GET - Todas as mensagens
+app.get('/messages', async (req, res) => {
+  try {
+    const [rows] = await pool.query(`SELECT * FROM messages`);
+    res.json(rows);
+  } catch (error) {
+    console.error('Erro ao buscar mensagens:', error);
+    res.status(500).json({ error: 'Erro ao buscar mensagens' });
+  }
+});
+
+// GET - Mensagem específica por ID
+app.get('/messages/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.query(`SELECT * FROM messages WHERE id = ?`, [req.params.id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Mensagem não encontrada' });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Erro ao buscar mensagem:', error);
+    res.status(500).json({ error: 'Erro ao buscar mensagem' });
+  }
+});
+
+// POST - Criar nova mensagem
+app.post('/messages', async (req, res) => {
+  const { contact_id, remetente_id, destinatario_id, conteudo } = req.body;
+  try {
+    const [result] = await pool.query(
+      `INSERT INTO messages (contact_id, remetente_id, destinatario_id, conteudo) VALUES (?, ?, ?, ?)`,
+      [contact_id, remetente_id, destinatario_id, conteudo]
+    );
+    const [newMessage] = await pool.query(`SELECT * FROM messages WHERE id = ?`, [result.insertId]);
+    res.status(201).json(newMessage[0]);
+  } catch (error) {
+    console.error('Erro ao criar mensagem:', error);
+    res.status(500).json({ error: 'Erro ao criar mensagem' });
+  }
+});
+
+// PUT - Atualizar mensagem existente
+app.put('/messages/:id', async (req, res) => {
+  const { contact_id, remetente_id, destinatario_id, conteudo } = req.body;
+  try {
+    const [result] = await pool.query(
+      `UPDATE messages SET contact_id = ?, remetente_id = ?, destinatario_id = ?, conteudo = ? WHERE id = ?`,
+      [contact_id, remetente_id, destinatario_id, conteudo, req.params.id]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Mensagem não encontrada' });
+    }
+    const [updatedMessage] = await pool.query(`SELECT * FROM messages WHERE id = ?`, [req.params.id]);
+    res.json(updatedMessage[0]);
+  } catch (error) {
+    console.error('Erro ao atualizar mensagem:', error);
+    res.status(500).json({ error: 'Erro ao atualizar mensagem' });
+  }
+});
+
+// DELETE - Remover mensagem
+app.delete('/messages/:id', async (req, res) => {
+  try {
+    const [result] = await pool.query(`DELETE FROM messages WHERE id = ?`, [req.params.id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Mensagem não encontrada' });
+    }
+    res.json({ message: 'Mensagem excluída com sucesso' });
+  } catch (error) {
+    console.error('Erro ao excluir mensagem:', error);
+    res.status(500).json({ error: 'Erro ao excluir mensagem' });
+  }
+});
 
 // pega todos os usuários
 app.get('/', async (req, res) => {

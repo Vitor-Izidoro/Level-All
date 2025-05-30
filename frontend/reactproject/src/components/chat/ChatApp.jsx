@@ -46,7 +46,6 @@ function ChatApp() {
 
     return (
         <div className="app-container">
-            <Sidebar activeTab={activeTab} onChangeTab={handleChangeTab} />
             
             {activeTab === 'contacts' && (
                 <ContactList
