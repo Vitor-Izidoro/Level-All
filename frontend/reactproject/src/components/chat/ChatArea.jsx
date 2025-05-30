@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getMessages, createMessage } from '../../config/api'; // Importa as funções da API
 
 const ChatArea = ({ contact, currentUser }) => {
     const [messages, setMessages] = useState([]);
@@ -6,39 +7,37 @@ const ChatArea = ({ contact, currentUser }) => {
     const [error, setError] = useState('');
     const messagesEndRef = useRef(null);
 
-    // Carregar mensagens do backend para o contato selecionado
+    // Carregar mensagens do backend usando a API
     useEffect(() => {
-        if (contact) {
-            fetch(`http://localhost:5000/messages/${contact.id}`)
-                .then((res) => res.json())
-                .then((data) => setMessages(data))
-                .catch((err) => console.error('Erro ao carregar mensagens', err));
-        } else {
-            setMessages([]);
-        }
+        const fetchMessages = async () => {
+            if (contact) {
+                try {
+                    const data = await getMessages(contact.id);
+                    setMessages(data);
+                } catch (err) {
+                    console.error('Erro ao carregar mensagens', err);
+                    setError('Erro ao carregar mensagens.');
+                }
+            } else {
+                setMessages([]);
+            }
+        };
+        fetchMessages();
     }, [contact]);
 
-    // Enviar nova mensagem para o backend
+    // Enviar nova mensagem usando a API
     const handleSend = async () => {
         if (!message.trim() || !contact) return;
 
         const newMessage = {
             contact_id: contact.id,                // ID do contato
             remetente_id: currentUser.id,         // ID do usuário logado
-            destinatario_id: contact.userId,      // ID do usuário destinatário
+            destinatario_id: contact.userId,      // ID do destinatário
             conteudo: message,
         };
 
         try {
-            const res = await fetch('http://localhost:5000/messages', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(newMessage),
-            });
-
-            if (!res.ok) throw new Error('Erro ao enviar mensagem.');
-
-            const savedMessage = await res.json(); // espera receber a mensagem salva
+            const savedMessage = await createMessage(newMessage);
             setMessages((prev) => [...prev, savedMessage]);
             setMessage('');
         } catch (err) {

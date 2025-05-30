@@ -104,13 +104,13 @@ body {
     font-weight: 600;
 }
 
-.search-bar {
+.search-bar-chat {
     display: flex;
     align-items: center;
     padding: 10px;
 }
 
-.search-bar input {
+.seach-bar-chat input {
     width: 100%;
     padding: 10px 15px 10px 35px;
     border-radius: 20px;
@@ -121,12 +121,12 @@ body {
     transition: all 0.3s ease;
 }
 
-.search-bar input:focus {
+.seach-bar-chat input:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
 }
 
-.search-bar i {
+.seach-bar-chat i {
     position: absolute;
     left: 30px;
     top: 10px;

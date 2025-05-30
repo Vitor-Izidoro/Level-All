@@ -120,6 +120,110 @@ export const deleteUser = async (username) => {
   }
 };
 
+// =======================
+// CRUD DE CONTACTS
+export const getContacts = async () => {
+  try {
+    const response = await api.get('/contacts');
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar contatos:', error);
+    throw error;
+  }
+};
+
+export const getContactById = async (id) => {
+  try {
+    const response = await api.get(`/contacts/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar contato:', error);
+    throw error;
+  }
+};
+
+export const createContact = async (contact) => {
+  try {
+    const response = await api.post('/contacts', contact);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao criar contato:', error);
+    throw error;
+  }
+};
+
+export const updateContact = async (id, contact) => {
+  try {
+    const response = await api.put(`/contacts/${id}`, contact);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao atualizar contato:', error);
+    throw error;
+  }
+};
+
+export const deleteContact = async (id) => {
+  try {
+    const response = await api.delete(`/contacts/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao excluir contato:', error);
+    throw error;
+  }
+};
+
+// =======================
+// CRUD DE MESSAGES
+export const getMessages = async (contactId) => {
+  try {
+    const response = await api.get(`/contacts/${contactId}/messages`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar mensagens:', error);
+    throw error;
+  }
+};
+
+export const getMessageById = async (contactId, messageId) => {
+  try {
+    const response = await api.get(`/contacts/${contactId}/messages/${messageId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar mensagem:', error);
+    throw error;
+  }
+};
+
+export const createMessage = async (contactId, message) => {
+  try {
+    const response = await api.post(`/contacts/${contactId}/messages`, message);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao criar mensagem:', error);
+    throw error;
+  }
+};
+
+export const updateMessage = async (contactId, messageId, message) => {
+  try {
+    const response = await api.put(`/contacts/${contactId}/messages/${messageId}`, message);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao atualizar mensagem:', error);
+    throw error;
+  }
+};
+
+export const deleteMessage = async (contactId, messageId) => {
+  try {
+    const response = await api.delete(`/contacts/${contactId}/messages/${messageId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao excluir mensagem:', error);
+    throw error;
+  }
+};
+
 export const testConnection = async () => {
   try {
     const response = await api.get('/test-db');

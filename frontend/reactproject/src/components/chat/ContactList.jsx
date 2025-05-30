@@ -1,9 +1,77 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import {
+    getContacts,
+    getContactById,
+    createContact,
+    updateContact,
+    deleteContact
+} from '../../config/api'; // ajuste o caminho se necessário
 
-const ContactList = ({ contacts, selectedContact, onSelectContact }) => {
+const ContactList = ({ selectedContact, onSelectContact }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [contacts, setContacts] = useState([]);
 
-    // Filtra contatos pelo nome (insensível a maiúsculas/minúsculas)
+    // Buscar todos os contatos ao montar o componente
+    useEffect(() => {
+        fetchContacts();
+    }, []);
+
+    // Função para buscar todos os contatos
+    async function fetchContacts() {
+        try {
+            const data = await getContacts();
+            const enhancedContacts = data.map(contact => ({
+                ...contact,
+                name: `Usuário ${contact.contact_user_id}`,
+                avatar: '👤',
+                lastMessage: 'Última mensagem aqui'
+            }));
+            setContacts(enhancedContacts);
+        } catch (error) {
+            console.error('Erro ao buscar contatos', error);
+        }
+    }
+
+    // Exemplo: Buscar contato por ID
+    async function handleGetContactById(id) {
+        try {
+            const contact = await getContactById(id);
+            console.log('Contato encontrado:', contact);
+        } catch (error) {
+            console.error('Erro ao buscar contato por ID', error);
+        }
+    }
+
+    // Exemplo: Criar novo contato
+    async function handleCreateContact(newContact) {
+        try {
+            await createContact(newContact);
+            fetchContacts(); // Atualiza lista após criar
+        } catch (error) {
+            console.error('Erro ao criar contato', error);
+        }
+    }
+
+    // Exemplo: Atualizar contato
+    async function handleUpdateContact(id, updatedContact) {
+        try {
+            await updateContact(id, updatedContact);
+            fetchContacts(); // Atualiza lista após atualizar
+        } catch (error) {
+            console.error('Erro ao atualizar contato', error);
+        }
+    }
+
+    // Exemplo: Deletar contato
+    async function handleDeleteContact(id) {
+        try {
+            await deleteContact(id);
+            fetchContacts(); // Atualiza lista após deletar
+        } catch (error) {
+            console.error('Erro ao excluir contato', error);
+        }
+    }
+
     const filteredContacts = contacts.filter(contact =>
         contact.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -15,7 +83,7 @@ const ContactList = ({ contacts, selectedContact, onSelectContact }) => {
                 <i className="fas fa-ellipsis-v"></i>
             </div>
 
-            <div className="search-bar">
+            <div className="seach-bar-chat">
                 <i className="fas fa-search search-icon"></i>
                 <input
                     type="text"
