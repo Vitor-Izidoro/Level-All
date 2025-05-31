@@ -1,4 +1,4 @@
-  :root {
+:root {
     --primary-color: #4361ee;
     --secondary-color: #3f37c9;
     --sidebar-dark: #1b263b;
@@ -45,6 +45,43 @@ body {
     z-index: 10;
 }
 
+/* Media queries para a sidebar do chat */
+@media (max-width: 992px) {
+    .icon-sidebar {
+        width: 60px;
+    }
+}
+
+@media (max-width: 768px) {
+    .icon-sidebar {
+        width: 50px;
+        padding-top: 20px;
+    }
+    
+    .icon-sidebar i {
+        font-size: 18px;
+        margin: 15px 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .icon-sidebar {
+        width: 100%;
+        height: 60px;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 0;
+    }
+    
+    .icon-sidebar i {
+        margin: 0;
+    }
+}
+
 .icon-sidebar i {
     font-size: 20px;
     margin: 20px 0;
@@ -89,6 +126,31 @@ body {
     display: flex;
     flex-direction: column;
     background-color: #fff;
+}
+
+@media (max-width: 992px) {
+    .groups, .contacts {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .groups, .contacts {
+        width: 220px;
+    }
+}
+
+@media (max-width: 576px) {
+    .groups, .contacts {
+        width: 100%;
+        height: 40%;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .chat-area {
+        height: 60%;
+    }
 }
 
 .contacts-header, .groups-header {
@@ -138,6 +200,12 @@ body {
     overflow-y: auto;
 }
 
+@media (max-width: 576px) {
+    .contact-list, .group-list {
+        max-height: calc(100% - 120px);
+    }
+}
+
 .group-item, .contact-item {
     display: flex;
     align-items: center;
@@ -165,6 +233,14 @@ body {
     justify-content: center;
     margin-right: 10px;
     font-size: 20px;
+}
+
+@media (max-width: 768px) {
+    .group-avatar, .contact-avatar {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
 }
 
 .group-avatar.large {
@@ -228,66 +304,23 @@ body {
     transition: color 0.2s ease;
 }
 
+@media (max-width: 576px) {
+    .chat-actions i {
+        margin-left: 10px;
+    }
+}
+
 .chat-actions i:hover {
     color: var(--primary-color);
 }
 
 .chat-messages {
     flex: 1;
-    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
     overflow-y: auto;
-}
-
-.message-input {
-    padding: 10px;
-    background-color: #fff;
-    border-top: 1px solid #ddd;
-}
-
-.input-container {
-    display: flex;
-    align-items: center;
-}
-
-.input-container i {
-    color: var(--text-light);
-    margin: 0 10px;
-    cursor: pointer;
-}
-
-.input-container input {
-    flex: 1;
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 20px;
-    outline: none;
-    margin: 0 10px;
-}
-
-.send-button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.send-button:hover {
-    background-color: var(--secondary-color);
-}
-
-.chat-messages {
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  overflow-y: auto;
-  height: 100%;
+    height: 100%;
 }
 
 .message {
@@ -296,6 +329,20 @@ body {
     padding: 8px 12px;
     border-radius: 20px;
     background-color: #e1ffc7;
+}
+
+@media (max-width: 768px) {
+    .message {
+        max-width: 75%;
+    }
+}
+
+@media (max-width: 576px) {
+    .message {
+        max-width: 85%;
+        padding: 6px 10px;
+        font-size: 14px;
+    }
 }
 
 .sent {
@@ -338,4 +385,25 @@ body {
 
 .error-banner i {
     font-size: 1.2em;
+}
+
+/* Media queries para dispositivos móveis */
+@media (max-width: 480px) {
+    .app-container {
+        height: calc(100vh - 60px); /* Ajusta para o espaço da navbar */
+    }
+    
+    .message-input {
+        padding: 5px;
+    }
+    
+    .input-container input {
+        padding: 6px 8px;
+        margin: 0 5px;
+    }
+    
+    .send-button {
+        width: 30px;
+        height: 30px;
+    }
 }

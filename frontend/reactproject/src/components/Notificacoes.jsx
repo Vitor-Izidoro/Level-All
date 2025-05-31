@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
+import SidebarToggle from './SidebarToggle';
 
 function Notificacoes() {
-  return (
-    <div className="landing-root">
-      <aside className="sidebar">
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+  return (    <div className="landing-root">
+      <aside className={`sidebar${sidebarOpen ? '' : ' closed'}`}>
         <div className="sidebar-header">
           <div className="logo-circle">
             <img src="/logo.jpeg" alt="Logo Level All" className="logo-img" />
@@ -25,10 +30,13 @@ function Notificacoes() {
           <button className="sidebar-btn animated">⚙️ Configurações</button>
         </div>
         <div className="goto-users-fixed">
-         
-        </div>
+           </div>
       </aside>
-      <main className="main-content">
+      
+      {/* Botão de toggle para sidebar em dispositivos móveis */}
+      <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      
+      <main className={`main-content ${!sidebarOpen ? 'sidebar-closed' : ''}`}>
         <header className="main-header">
           <input className="search-bar" placeholder="Pesquisar..." />
           

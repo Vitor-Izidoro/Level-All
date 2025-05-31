@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../index.css";
 import ProfileMenu from './ProfileMenu'; // ajuste o caminho se necessário
+import SidebarToggle from './SidebarToggle';
 
 function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -166,13 +167,12 @@ function LandingPage() {
         <div className="sidebar-footer">
           <button className="sidebar-btn animated">
             <span role="img" aria-label="Configurações">⚙️</span> Configurações
-          </button>
-        </div>
-        <button onClick={toggleSidebar} className="sidebar-toggle-btn">
-          {sidebarOpen ? '<' : '>'}
-        </button>
-      </aside>
-      <main className="main-content">
+          </button>        </div>
+      </aside>      
+      {/* Botão de toggle para sidebar em dispositivos móveis */}
+      <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      
+      <main className={`main-content ${!sidebarOpen ? 'sidebar-closed' : ''}`}>
         <header className="main-header">
           <div className="search-bar-container">
             <input
@@ -329,13 +329,20 @@ function LandingPage() {
           align-items: center;
           justify-content: center;
           z-index: 1000;
-        }
-        .modal-content {
+        }        .modal-content {
           background: #fff;
           padding: 32px 24px;
           border-radius: 16px;
           min-width: 340px;
           max-width: 90vw;
+        }
+        
+        @media (max-width: 576px) {
+          .modal-content {
+            padding: 20px 15px;
+            min-width: auto;
+            width: 95%;
+          }
         }
         .modal-content textarea {
           color: #111;
@@ -521,9 +528,7 @@ function LandingPage() {
           max-width: 750px;
           margin: 0 auto 32px auto;
           background: transparent;
-        }
-
-        .sidebar.closed {
+        }        .sidebar.closed {
           width: 80px;
         }
 
@@ -531,30 +536,6 @@ function LandingPage() {
         .sidebar.closed .sidebar-nav,
         .sidebar.closed .sidebar-footer {
           display: none;
-        }
-
-        .sidebar-toggle-btn {
-          position: absolute;
-          top: 20px;
-          right: -40px;
-          width: 40px;
-          height: 40px;
-          background: #a48ad4;
-          color: #fff;
-          border: none;
-          border-radius: 20px;
-          cursor: pointer;
-          transition: background 0.2s, transform 0.2s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.5rem;
-          z-index: 1001;
-        }
-
-        .sidebar-toggle-btn:hover {
-          background: #9b7dc2;
-          transform: translateX(2px);
         }
 
         .profile-reddit-dropdown {
