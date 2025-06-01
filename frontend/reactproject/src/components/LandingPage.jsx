@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "../index.css";
-import ProfileMenu from './ProfileMenu'; // ajuste o caminho se necessário
+import ProfileMenu from './ProfileMenu';
 import SidebarToggle from './SidebarToggle';
+import { useAuth } from "../context/AuthContext";
 
 function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,6 +18,8 @@ function LandingPage() {
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const { autenticado, usuario } = useAuth();
+  const navigate = useNavigate();
 
   const staticPages = [
     { name: "Mensagens", path: "/mensagens" },
@@ -99,17 +102,29 @@ function LandingPage() {
       fetchFeed();
     }
   };
-
   const fetchFeed = async () => {
-    const res = await fetch('http://localhost:3000/posts');
-    const posts = await res.json();
-    setFeed(posts.map(post => ({
-      user: "Usuário",
-      handle: "@usuario",
-      text: post.texto,
-      hashtags: "",
-      image: post.imagem ? `http://localhost:3000/uploads/${post.imagem}` : null
-    })));
+    try {
+      const res = await fetch('http://localhost:3000/posts');
+      const posts = await res.json();
+      
+      // Verificar se posts é um array antes de chamar .map()
+      if (Array.isArray(posts)) {
+        setFeed(posts.map(post => ({
+          user: "Usuário",
+          handle: "@usuario",
+          text: post.texto || "",
+          hashtags: "",
+          image: post.imagem ? `http://localhost:3000/uploads/${post.imagem}` : null
+        })));
+      } else {
+        // Se não for um array, define feed como um array vazio
+        console.error("Resposta da API não é um array:", posts);
+        setFeed([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar feed:", error);
+      setFeed([]);
+    }
   };
 
   useEffect(() => {
@@ -199,24 +214,32 @@ function LandingPage() {
                   )
                 )}
               </ul>
-            )}
-          </div>
-          <button
-            className="profile-reddit-btn"
-            onClick={() => setProfileMenuOpen(v => !v)}
-            onBlur={() => setTimeout(() => setProfileMenuOpen(false), 150)}
-            tabIndex={0}
-          >
-            <img src="/logo.jpeg" alt="Perfil" className="profile-reddit-img" />
-            <span className="profile-reddit-name">Seu Nome</span>
-            <svg width="18" height="18" style={{marginLeft: 6}} viewBox="0 0 20 20" fill="none">
-              <path d="M6 8l4 4 4-4" stroke="#a48ad4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <div className={`profile-reddit-dropdown${profileMenuOpen ? " open" : ""}`}>
-              <a href="/perfil" className="profile-reddit-dropdown-item">Perfil</a>
-              <a href="/configuracoes" className="profile-reddit-dropdown-item">Configurações</a>
-            </div>
-          </button>
+            )}          </div>
+          {autenticado ? (
+            <button
+              className="profile-reddit-btn"
+              onClick={() => setProfileMenuOpen(v => !v)}
+              onBlur={() => setTimeout(() => setProfileMenuOpen(false), 150)}
+              tabIndex={0}
+            >
+              <img src="/logo.jpeg" alt="Perfil" className="profile-reddit-img" />
+              <span className="profile-reddit-name">{usuario?.nome || "Usuário"}</span>
+              <svg width="18" height="18" style={{marginLeft: 6}} viewBox="0 0 20 20" fill="none">
+                <path d="M6 8l4 4 4-4" stroke="#a48ad4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <div className={`profile-reddit-dropdown${profileMenuOpen ? " open" : ""}`}>
+                <a href="/perfil" className="profile-reddit-dropdown-item">Perfil</a>
+                <a href="/configuracoes" className="profile-reddit-dropdown-item">Configurações</a>
+              </div>
+            </button>
+          ) : (
+            <button 
+              className="profile-reddit-btn" 
+              onClick={() => navigate('/login')}
+            >
+              <span className="profile-reddit-name">Entrar</span>
+            </button>
+          )}
         </header>
         <div className="publish-section">
           <button
@@ -565,6 +588,29 @@ function LandingPage() {
 
         .profile-reddit-dropdown-item:hover {
           background: #f3f3f3;
+        }
+
+        .login-btn {
+          display: inline-block;
+          padding: 12px 24px;
+          background: #a48ad4;
+          color: #fff;
+          border: none;
+          border-radius: 24px;
+          cursor: pointer;
+          font-size: 1rem;
+          font-weight: 600;
+          transition: background 0.2s, transform 0.2s;
+          position: fixed;
+          top: 20px;
+          right: 120px;
+          z-index: 1000;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-btn:hover {
+          background: #9b7dc2;
+          transform: translateY(-2px);
         }
       `}</style>
     </div>

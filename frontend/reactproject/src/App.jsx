@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./components/LandingPage";
 import Explorar from "./components/Explorar";
 import SuasTags from "./components/SuasTags";
@@ -6,20 +6,56 @@ import Mensagens from "./components/Mensagens";
 import Notificacoes from "./components/Notificacoes";
 import Perfil from "./components/Perfil";
 import Comunidades from "./components/Comunidades";
+import Login from "./components/Login";
+import RotaProtegida from "./components/RotaProtegida";
+import ServerStatus from "./components/ServerStatus";
+import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/explorar" element={<Explorar />} />
-        <Route path="/tags" element={<SuasTags />} />
-        <Route path="/mensagens" element={<Mensagens />} />
-        <Route path="/notificacoes" element={<Notificacoes />} />
-        <Route path="/perfil" element={<Perfil />} />
-        <Route path="/comunidades" element={<Comunidades />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <ServerStatus />
+        <Routes>
+          {/* Rotas públicas */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<LandingPage />} />
+          
+          {/* Rotas protegidas - requerem autenticação */}
+          <Route path="/explorar" element={
+            <RotaProtegida>
+              <Explorar />
+            </RotaProtegida>
+          } />
+          <Route path="/tags" element={
+            <RotaProtegida>
+              <SuasTags />
+            </RotaProtegida>
+          } />
+          <Route path="/mensagens" element={
+            <RotaProtegida>
+              <Mensagens />
+            </RotaProtegida>
+          } />
+          <Route path="/notificacoes" element={
+            <RotaProtegida>
+              <Notificacoes />
+            </RotaProtegida>
+          } />
+          <Route path="/perfil" element={
+            <RotaProtegida>
+              <Perfil />
+            </RotaProtegida>
+          } />
+          <Route path="/comunidades" element={
+            <RotaProtegida>
+              <Comunidades />
+            </RotaProtegida>
+          } />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
