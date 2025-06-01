@@ -173,6 +173,137 @@ app.get('/health', (req, res) => {
   return res.json({ status: 'ok', server: 'online' });
 });
 
+// rota de registro de novos usuários
+app.post('/register', async (req, res) => {
+  const { username, nome, email, senha, userType, cnpj } = req.body;
+  
+  console.log(`Tentativa de registro: ${username}, tipo: ${userType}`);
+  
+  try {
+    // Não permitir registro de administradores
+    if (userType === 'admin') {
+      return res.status(403).json({ error: 'Não é permitido o registro de administradores' });
+    }
+    
+    // Validar campos obrigatórios
+    if (!username || !nome || !email || !senha || !userType) {
+      return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+    }
+    
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Formato de e-mail inválido' });
+    }
+    
+    // Validar investidor precisa ter CNPJ
+    if (userType === 'investor' && !cnpj) {
+      return res.status(400).json({ error: 'CNPJ é obrigatório para investidores' });
+    }
+    
+    let tableName;
+    
+    switch(userType) {
+      case 'gamer':
+        tableName = 'user_gamer';
+        break;
+      case 'developer':
+        tableName = 'user_developer';
+        break;
+      case 'investor':
+        tableName = 'user_investor';
+        break;
+      default:
+        return res.status(400).json({ error: 'Tipo de usuário inválido' });
+    }
+    
+    // Verificar se username já existe
+    const [usernameCheck] = await pool.query(
+      `SELECT username FROM ${tableName} WHERE username = ?`,
+      [username]
+    );
+    
+    if (usernameCheck.length > 0) {
+      return res.status(400).json({ error: 'Nome de usuário já está em uso' });
+    }
+    
+    // Verificar se email já existe
+    const [emailCheck] = await pool.query(
+      `SELECT email FROM ${tableName} WHERE email = ?`,
+      [email]
+    );
+    
+    if (emailCheck.length > 0) {
+      return res.status(400).json({ error: 'Este e-mail já está cadastrado' });
+    }
+    
+    // Para investidores, verificar CNPJ também
+    if (userType === 'investor') {
+      const [cnpjCheck] = await pool.query(
+        `SELECT cnpj FROM ${tableName} WHERE cnpj = ?`,
+        [cnpj]
+      );
+      
+      if (cnpjCheck.length > 0) {
+        return res.status(400).json({ error: 'CNPJ já cadastrado' });
+      }
+    }
+    
+    // Inserir usuário no banco de dados
+    let insertQuery, insertParams;
+    
+    if (userType === 'investor') {
+      insertQuery = `INSERT INTO ${tableName} (username, nome, email, senha, cnpj) VALUES (?, ?, ?, ?, ?)`;
+      insertParams = [username, nome, email, senha, cnpj];
+    } else {
+      insertQuery = `INSERT INTO ${tableName} (username, nome, email, senha) VALUES (?, ?, ?, ?)`;
+      insertParams = [username, nome, email, senha];
+    }
+    
+    const [result] = await pool.query(insertQuery, insertParams);
+    
+    if (result.affectedRows === 1) {
+      // Gerar token JWT para o novo usuário
+      const token = jwt.sign(
+        { 
+          id: result.insertId, 
+          username,
+          nome,
+          userType
+        },
+        process.env.JWT_SECRET || 'seu_jwt_secret',
+        { expiresIn: '1h' }
+      );
+      
+      // Retornar dados do novo usuário e token
+      return res.status(201).json({
+        message: 'Usuário registrado com sucesso',
+        user: {
+          id: result.insertId,
+          username,
+          nome,
+          email,
+          userType
+        },
+        token
+      });
+    } else {
+      throw new Error('Erro ao inserir usuário no banco de dados');
+    }
+  } catch (error) {
+    console.error('Erro ao registrar usuário:', error);
+    
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ error: 'Nome de usuário ou e-mail já está em uso' });
+    }
+    
+    return res.status(500).json({ 
+      error: 'Erro ao processar o registro',
+      details: error.message
+    });
+  }
+});
+
 app.get('/test-db', async (req, res) => {
   try {
     console.log('Testando conexão com o banco de dados...');

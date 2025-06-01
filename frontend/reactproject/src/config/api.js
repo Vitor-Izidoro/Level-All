@@ -70,6 +70,46 @@ export const login = async (username, password, userType) => {
   }
 };
 
+// Função de registro
+export const register = async (username, nome, email, senha, userType, cnpj) => {
+  try {
+    console.log(`Registrando ${username} como ${userType}`);
+    
+    const userData = { username, nome, email, senha, userType };
+    
+    // Se for investidor, adiciona o CNPJ
+    if (userType === 'investor' && cnpj) {
+      userData.cnpj = cnpj;
+    }
+    
+    // Fazer a requisição com um timeout para evitar que fique pendente indefinidamente
+    const response = await api.post('/register', userData, {
+      timeout: 10000 // 10 segundos de timeout
+    });
+    
+    console.log('Resposta de registro recebida:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Erro durante o registro:', error);
+    
+    // Se tivermos uma resposta do servidor, mostrar o erro específico
+    if (error.response) {
+      console.error('Resposta de erro do servidor:', error.response.data);
+      console.error('Status do erro:', error.response.status);
+      throw error;
+    }
+    
+    // Se for um erro de timeout ou de rede
+    if (error.request) {
+      console.error('Erro de rede ou timeout na requisição');
+      throw new Error('Não foi possível se conectar ao servidor. Verifique sua conexão.');
+    }
+    
+    // Para outros erros
+    throw error;
+  }
+};
+
 // Função para verificar se o usuário está autenticado
 export const verificarAutenticacao = () => {
   const token = localStorage.getItem('token');

@@ -231,14 +231,22 @@ function LandingPage() {
                 <a href="/perfil" className="profile-reddit-dropdown-item">Perfil</a>
                 <a href="/configuracoes" className="profile-reddit-dropdown-item">Configurações</a>
               </div>
-            </button>
-          ) : (
-            <button 
-              className="profile-reddit-btn" 
-              onClick={() => navigate('/login')}
-            >
-              <span className="profile-reddit-name">Entrar</span>
-            </button>
+            </button>          ) : (
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                className="profile-reddit-btn" 
+                onClick={() => navigate('/login')}
+              >
+                <span className="profile-reddit-name">Entrar</span>
+              </button>
+              <button 
+                className="profile-reddit-btn" 
+                style={{ backgroundColor: '#4CAF50' }}
+                onClick={() => navigate('/register')}
+              >
+                <span className="profile-reddit-name">Registrar</span>
+              </button>
+            </div>
           )}
         </header>
         <div className="publish-section">

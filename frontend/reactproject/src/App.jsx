@@ -7,6 +7,7 @@ import Notificacoes from "./components/Notificacoes";
 import Perfil from "./components/Perfil";
 import Comunidades from "./components/Comunidades";
 import Login from "./components/Login";
+import Register from "./components/Register";
 import RotaProtegida from "./components/RotaProtegida";
 import ServerStatus from "./components/ServerStatus";
 import { AuthProvider } from "./context/AuthContext";
@@ -16,10 +17,10 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <ServerStatus />
-        <Routes>
+        <ServerStatus />        <Routes>
           {/* Rotas públicas */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/" element={<LandingPage />} />
           
           {/* Rotas protegidas - requerem autenticação */}
