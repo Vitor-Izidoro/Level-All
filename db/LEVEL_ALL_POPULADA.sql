@@ -1,10 +1,10 @@
 CREATE DATABASE  IF NOT EXISTS `level_all` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `level_all`;
--- MySQL dump 10.13  Distrib 8.0.36, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: level_all
+-- Host: localhost    Database: level_all
 -- ------------------------------------------------------
--- Server version	8.0.37
+-- Server version	8.0.34
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -103,6 +103,91 @@ CREATE TABLE `contacts` (
 LOCK TABLES `contacts` WRITE;
 /*!40000 ALTER TABLE `contacts` DISABLE KEYS */;
 /*!40000 ALTER TABLE `contacts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `group_chat`
+--
+
+DROP TABLE IF EXISTS `group_chat`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `group_chat` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(100) NOT NULL,
+  `descricao` text,
+  `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `group_chat`
+--
+
+LOCK TABLES `group_chat` WRITE;
+/*!40000 ALTER TABLE `group_chat` DISABLE KEYS */;
+/*!40000 ALTER TABLE `group_chat` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `group_member`
+--
+
+DROP TABLE IF EXISTS `group_member`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `group_member` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `group_id` int NOT NULL,
+  `chat_user_id` int NOT NULL,
+  `adicionado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `eh_admin` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `group_id` (`group_id`),
+  KEY `chat_user_id` (`chat_user_id`),
+  CONSTRAINT `group_member_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `group_chat` (`id`),
+  CONSTRAINT `group_member_ibfk_2` FOREIGN KEY (`chat_user_id`) REFERENCES `chat_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `group_member`
+--
+
+LOCK TABLES `group_member` WRITE;
+/*!40000 ALTER TABLE `group_member` DISABLE KEYS */;
+/*!40000 ALTER TABLE `group_member` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `group_message`
+--
+
+DROP TABLE IF EXISTS `group_message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `group_message` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `group_id` int NOT NULL,
+  `chat_user_id` int NOT NULL,
+  `mensagem` text NOT NULL,
+  `enviada_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `group_id` (`group_id`),
+  KEY `chat_user_id` (`chat_user_id`),
+  CONSTRAINT `group_message_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `group_chat` (`id`),
+  CONSTRAINT `group_message_ibfk_2` FOREIGN KEY (`chat_user_id`) REFERENCES `chat_user` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `group_message`
+--
+
+LOCK TABLES `group_message` WRITE;
+/*!40000 ALTER TABLE `group_message` DISABLE KEYS */;
+/*!40000 ALTER TABLE `group_message` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -292,4 +377,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-29 11:28:26
+-- Dump completed on 2025-06-02  9:42:40
