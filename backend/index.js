@@ -20,7 +20,7 @@ const corsOptions = {
   credentials: true
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 // rota de login
@@ -367,11 +367,12 @@ app.get('/contacts/:id', async (req, res) => {
 
 // POST - Criar novo contato
 app.post('/contacts', async (req, res) => {
-  const { user_id, contact_user_id } = req.body;
+  console.log(req.body);
+  const { user_id, contact_id } = req.body;
   try {
     const [result] = await pool.query(
-      `INSERT INTO contacts (user_id, contact_user_id) VALUES (?, ?)`,
-      [user_id, contact_user_id]
+      `INSERT INTO contacts (user_id, contact_id) VALUES (?, ?)`,
+      [user_id, contact_id]
     );
     const [newContact] = await pool.query(`SELECT * FROM contacts WHERE id = ?`, [result.insertId]);
     res.status(201).json(newContact[0]);
@@ -383,11 +384,11 @@ app.post('/contacts', async (req, res) => {
 
 // PUT - Atualizar contato existente
 app.put('/contacts/:id', async (req, res) => {
-  const { user_id, contact_user_id } = req.body;
+  const { user_id, contact_id } = req.body;
   try {
     const [result] = await pool.query(
-      `UPDATE contacts SET user_id = ?, contact_user_id = ? WHERE id = ?`,
-      [user_id, contact_user_id, req.params.id]
+      `UPDATE contacts SET user_id = ?, contact_id = ? WHERE id = ?`,
+      [user_id, contact_id, req.params.id]
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Contato não encontrado' });
@@ -416,11 +417,35 @@ app.delete('/contacts/:id', async (req, res) => {
 
 // GET - Todas as mensagens
 app.get('/messages', async (req, res) => {
+  const contactId = req.query.contactId;
+  if (!contactId) {
+    return res.status(400).json({ error: 'Parâmetro contactId é obrigatório' });
+  }
+
   try {
-    const [rows] = await pool.query(`SELECT * FROM messages`);
+    const [rows] = await pool.query(
+      `SELECT * FROM messages WHERE contact_id = ? ORDER BY enviada_em ASC`,
+      [contactId]
+    );
     res.json(rows);
   } catch (error) {
     console.error('Erro ao buscar mensagens:', error);
+    res.status(500).json({ error: 'Erro ao buscar mensagens' });
+  }
+});
+
+// GET /contacts/:contactId/messages
+app.get('/contacts/:contactId/messages', async (req, res) => {
+  const { contactId } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM messages WHERE contact_id = ? ORDER BY enviada_em ASC`,
+      [contactId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Erro ao buscar mensagens:', err);
     res.status(500).json({ error: 'Erro ao buscar mensagens' });
   }
 });
@@ -493,14 +518,8 @@ app.get('/', async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT 
-        id,
-        nome,
-        email,
-        genero,
-        telefone,
-        endereco,
-        filmeFav
-      FROM users
+        *
+      FROM authenticated_user
     `);
     res.json(rows);
   } catch (error) {
@@ -596,13 +615,78 @@ app.post('/user_admin', async (req, res) => {
 });
 
 
+// Endpoint para verificar se um nome de usuário está disponível
+app.get('/check-username', async (req, res) => {
+  const { username, table, userId } = req.query;
+  
+  if (!username || !table) {
+    return res.status(400).json({ 
+      error: 'Parâmetros username e table são obrigatórios' 
+    });
+  }
+  
+  // Verificar se a tabela solicitada é válida
+  const validTables = ['user_gamer', 'user_developer', 'user_investor', 'user_admin'];
+  if (!validTables.includes(table)) {
+    return res.status(400).json({ 
+      error: 'Tabela inválida' 
+    });
+  }
+  
+  try {
+    // Verificar se o username já existe para outro usuário
+    const query = userId 
+      ? `SELECT id FROM ${table} WHERE username = ? AND id != ?` 
+      : `SELECT id FROM ${table} WHERE username = ?`;
+    
+    const params = userId ? [username, userId] : [username];
+    
+    const [rows] = await pool.query(query, params);
+    
+    // Se encontrou registros, o username não está disponível
+    const available = rows.length === 0;
+    
+    res.json({ available });
+  } catch (error) {
+    console.error('Erro ao verificar disponibilidade de username:', error);
+    res.status(500).json({ error: 'Erro ao verificar disponibilidade de username' });
+  }
+});
+
 // atualiza um usuário gamer
 app.put('/user_gamer/:id', async (req, res) => {
   try {
-    const { username, nome, email, senha } = req.body;
+    const { username, nome, email, senha = null } = req.body;
+    
+    // Verificar se o novo nome de usuário já existe para outro usuário
+    if (username) {
+      const [usernameCheck] = await pool.query(
+        'SELECT id FROM user_gamer WHERE username = ? AND id != ?',
+        [username, req.params.id]
+      );
+      
+      if (usernameCheck.length > 0) {
+        return res.status(400).json({ error: 'Nome de usuário já está em uso' });
+      }
+    }
+      // Se senha for nula, undefined ou vazia, buscar a senha atual no banco
+    if (senha === null || senha === undefined || senha === '') {
+      console.log(`Usuário ${req.params.id} atualizando perfil sem mudar senha`);
+      const [rows] = await pool.query(
+        'SELECT senha FROM user_gamer WHERE id = ?',
+        [req.params.id]
+      );
+      
+      if (rows.length > 0) {
+        req.body.senha = rows[0].senha; // Mantém a senha atual
+      } else {
+        return res.status(404).json({ error: 'User not found' });
+      }
+    }
+    
     const [result] = await pool.query(
       'UPDATE user_gamer SET username = ?, nome = ?, email = ?, senha = ? WHERE id = ?',
-      [username, nome, email, senha, req.params.id]
+      [username, nome, email, req.body.senha, req.params.id]
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -617,10 +701,37 @@ app.put('/user_gamer/:id', async (req, res) => {
 // atualiza um usuário developer
 app.put('/user_developer/:id', async (req, res) => {
   try {
-    const { username, nome, email, senha } = req.body;
+    const { username, nome, email, senha = null } = req.body;
+    
+    // Verificar se o novo nome de usuário já existe para outro usuário
+    if (username) {
+      const [usernameCheck] = await pool.query(
+        'SELECT id FROM user_developer WHERE username = ? AND id != ?',
+        [username, req.params.id]
+      );
+      
+      if (usernameCheck.length > 0) {
+        return res.status(400).json({ error: 'Nome de usuário já está em uso' });
+      }
+    }
+      // Se senha for nula, undefined ou vazia, buscar a senha atual no banco
+    if (senha === null || senha === undefined || senha === '') {
+      console.log(`Usuário ${req.params.id} atualizando perfil sem mudar senha`);
+      const [rows] = await pool.query(
+        'SELECT senha FROM user_developer WHERE id = ?',
+        [req.params.id]
+      );
+      
+      if (rows.length > 0) {
+        req.body.senha = rows[0].senha; // Mantém a senha atual
+      } else {
+        return res.status(404).json({ error: 'User not found' });
+      }
+    }
+    
     const [result] = await pool.query(
       'UPDATE user_developer SET username = ?, nome = ?, email = ?, senha = ? WHERE id = ?',
-      [username, nome, email, senha, req.params.id]
+      [username, nome, email, req.body.senha, req.params.id]
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -635,10 +746,37 @@ app.put('/user_developer/:id', async (req, res) => {
 // atualiza um usuário investor
 app.put('/user_investor/:id', async (req, res) => {
   try {
-    const { username, nome, email, senha, cnpj } = req.body;
+    const { username, nome, email, senha = null, cnpj } = req.body;
+    
+    // Verificar se o novo nome de usuário já existe para outro usuário
+    if (username) {
+      const [usernameCheck] = await pool.query(
+        'SELECT id FROM user_investor WHERE username = ? AND id != ?',
+        [username, req.params.id]
+      );
+      
+      if (usernameCheck.length > 0) {
+        return res.status(400).json({ error: 'Nome de usuário já está em uso' });
+      }
+    }
+      // Se senha for nula, undefined ou vazia, buscar a senha atual no banco
+    if (senha === null || senha === undefined || senha === '') {
+      console.log(`Usuário ${req.params.id} atualizando perfil sem mudar senha`);
+      const [rows] = await pool.query(
+        'SELECT senha FROM user_investor WHERE id = ?',
+        [req.params.id]
+      );
+      
+      if (rows.length > 0) {
+        req.body.senha = rows[0].senha; // Mantém a senha atual
+      } else {
+        return res.status(404).json({ error: 'User not found' });
+      }
+    }
+    
     const [result] = await pool.query(
       'UPDATE user_investor SET username = ?, nome = ?, email = ?, senha = ?, cnpj = ? WHERE id = ?',
-      [username, nome, email, senha, cnpj, req.params.id]
+      [username, nome, email, req.body.senha, cnpj, req.params.id]
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -653,10 +791,37 @@ app.put('/user_investor/:id', async (req, res) => {
 // atualiza um usuário admin
 app.put('/user_admin/:id', async (req, res) => {
   try {
-    const { username, nome, email, senha } = req.body;
+    const { username, nome, email, senha = null } = req.body;
+    
+    // Verificar se o novo nome de usuário já existe para outro usuário
+    if (username) {
+      const [usernameCheck] = await pool.query(
+        'SELECT id FROM user_admin WHERE username = ? AND id != ?',
+        [username, req.params.id]
+      );
+      
+      if (usernameCheck.length > 0) {
+        return res.status(400).json({ error: 'Nome de usuário já está em uso' });
+      }
+    }
+      // Se senha for nula, undefined ou vazia, buscar a senha atual no banco
+    if (senha === null || senha === undefined || senha === '') {
+      console.log(`Usuário ${req.params.id} atualizando perfil sem mudar senha`);
+      const [rows] = await pool.query(
+        'SELECT senha FROM user_admin WHERE id = ?',
+        [req.params.id]
+      );
+      
+      if (rows.length > 0) {
+        req.body.senha = rows[0].senha; // Mantém a senha atual
+      } else {
+        return res.status(404).json({ error: 'User not found' });
+      }
+    }
+    
     const [result] = await pool.query(
       'UPDATE user_admin SET username = ?, nome = ?, email = ?, senha = ? WHERE id = ?',
-      [username, nome, email, senha, req.params.id]
+      [username, nome, email, req.body.senha, req.params.id]
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -798,4 +963,3 @@ const startServer = async () => {
 
 // Iniciar o servidor
 startServer();
-

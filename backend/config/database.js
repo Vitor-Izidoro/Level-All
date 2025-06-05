@@ -5,10 +5,10 @@ dotenv.config();
 
 // Configuração do banco de dados com valores padrão caso não haja variáveis de ambiente
 const dbConfig = {
-  host: process.env.DB_HOST || "nome",
-  user: process.env.DB_USER || "nome",
-  password: process.env.DB_PASSWORD || "nome",
-  database: process.env.DB_NAME || "nome",
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "gay123",
+  database: process.env.DB_NAME || "level_all",
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
