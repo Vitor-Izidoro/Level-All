@@ -1,10 +1,10 @@
 CREATE DATABASE  IF NOT EXISTS `level_all` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `level_all`;
--- MySQL dump 10.13  Distrib 8.0.34, for Win64 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.36, for Win64 (x86_64)
 --
--- Host: localhost    Database: level_all
+-- Host: 127.0.0.1    Database: level_all
 -- ------------------------------------------------------
--- Server version	8.0.34
+-- Server version	8.0.37
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -16,6 +16,36 @@ USE `level_all`;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `autentica`
+--
+
+DROP TABLE IF EXISTS `autentica`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `autentica` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `residencia` varchar(255) NOT NULL,
+  `identidade` varchar(255) NOT NULL,
+  `banco` varchar(100) NOT NULL,
+  `agencia` varchar(50) NOT NULL,
+  `conta` varchar(50) NOT NULL,
+  `tipo` varchar(50) NOT NULL,
+  `data_envio` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `autentica`
+--
+
+LOCK TABLES `autentica` WRITE;
+/*!40000 ALTER TABLE `autentica` DISABLE KEYS */;
+INSERT INTO `autentica` VALUES (1,'1c5ecb40d79659230006bbe255cc2a6d','5679c60dbb40d33b7026544bc800570e','12345','556699','1234','corrente','2025-06-05 10:56:31');
+/*!40000 ALTER TABLE `autentica` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `authenticated_user`
@@ -40,7 +70,7 @@ CREATE TABLE `authenticated_user` (
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `cnpj` (`cnpj`),
   CONSTRAINT `authenticated_user_chk_1` CHECK ((`original_type` in (_utf8mb4'gamer',_utf8mb4'developer',_utf8mb4'investor')))
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -49,7 +79,7 @@ CREATE TABLE `authenticated_user` (
 
 LOCK TABLES `authenticated_user` WRITE;
 /*!40000 ALTER TABLE `authenticated_user` DISABLE KEYS */;
-INSERT INTO `authenticated_user` VALUES (1,2,'investor','mpereira','Mariana Pereira Souza','mariana.pereira@equitygroup.com','eqgroup01','98765432000109','2025-05-21 16:16:10'),(2,1,'investor','calberto','Carlos Alberto Silva','carlos.alberto@finvest.com','finvest2025','12345678000195','2025-05-21 16:16:10'),(3,7,'investor','bsantos','Bruno Santos Oliveira','bruno.santos@finvest.com','finvest123','92837465000155','2025-05-21 16:16:10'),(4,5,'developer','daniel.carvalho','Daniel Carvalho','daniel.carvalho@bytehub.com','byteHub#99',NULL,'2025-05-21 16:16:10'),(5,3,'developer','bruno.ribeiro','Bruno Ribeiro','bruno.ribeiro@techforge.com','forgeTech24',NULL,'2025-05-21 16:16:10'),(6,1,'gamer','shadowwolf01','Luna Silva','luna01@gamemail.com','senha123',NULL,'2025-05-21 16:16:10'),(7,2,'gamer','dragonxblaze','Thiago Rocha','thiagor@gamemail.com','dragao2024',NULL,'2025-05-21 16:16:10'),(8,3,'gamer','vampxqueen','Marina Costa','marinac@gamemail.com','bella4life',NULL,'2025-05-21 16:16:10'),(9,4,'gamer','firebladez','Carlos Mendes','cmendes@gamemail.com','flame321',NULL,'2025-05-21 16:16:10'),(10,5,'gamer','moonfury7','Juliana Dias','julianad@gamemail.com','luzluar',NULL,'2025-05-21 16:16:10');
+INSERT INTO `authenticated_user` VALUES (1,2,'investor','mpereira','Mariana Pereira Souza','mariana.pereira@equitygroup.com','eqgroup01','98765432000109','2025-05-21 16:16:10'),(2,1,'investor','calberto','Carlos Alberto Silva','carlos.alberto@finvest.com','finvest2025','12345678000195','2025-05-21 16:16:10'),(3,7,'investor','bsantos','Bruno Santos Oliveira','bruno.santos@finvest.com','finvest123','92837465000155','2025-05-21 16:16:10'),(4,5,'developer','daniel.carvalho','Daniel Carvalho','daniel.carvalho@bytehub.com','byteHub#99',NULL,'2025-05-21 16:16:10'),(5,3,'developer','bruno.ribeiro','Bruno Ribeiro','bruno.ribeiro@techforge.com','forgeTech24',NULL,'2025-05-21 16:16:10'),(7,2,'gamer','dragonxblaze','Thiago Rocha','thiagor@gamemail.com','dragao2024',NULL,'2025-05-21 16:16:10'),(8,3,'gamer','vampxqueen','Marina Costa','marinac@gamemail.com','bella4life',NULL,'2025-05-21 16:16:10'),(9,4,'gamer','firebladez','Carlos Mendes','cmendes@gamemail.com','flame321',NULL,'2025-05-21 16:16:10'),(10,5,'gamer','moonfury7','Juliana Dias','julianad@gamemail.com','luzluar',NULL,'2025-05-21 16:16:10'),(15,1,'gamer','shadowwolf01','Luna Silva','luna01@gamemail.com','senha123',NULL,'2025-06-05 13:56:31');
 /*!40000 ALTER TABLE `authenticated_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -377,4 +407,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-06-02  9:42:40
+-- Dump completed on 2025-06-05 10:59:48

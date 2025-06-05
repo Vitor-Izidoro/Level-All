@@ -11,6 +11,7 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import RotaProtegida from "./components/RotaProtegida";
 import ServerStatus from "./components/ServerStatus";
+import Autenticacao from "./components/Autenticacao"; 
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/AuthContext";
 
@@ -53,6 +54,11 @@ function App() {
           <Route path="/editar-perfil" element={
             <RotaProtegida>
               <EditProfile />
+            </RotaProtegida>
+          } />
+          <Route path="/autenticacao" element={
+            <RotaProtegida>
+              <Autenticacao />
             </RotaProtegida>
           } />
         </Routes>

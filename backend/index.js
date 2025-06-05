@@ -14,7 +14,7 @@ app.use('/uploads', express.static('uploads'));
 
 // configuração do CORS
 const corsOptions = {
-  origin: ['http://localhost:3001'],
+  origin: ['http://localhost:3000', 'http://localhost:3001'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -941,6 +941,86 @@ const startServer = async () => {
     process.exit(1); // Encerrar o processo com código de erro
   }
 };
+
+
+// ROTA PARA AUTENTICAÇÃO DE DOCUMENTOS
+app.post('/api/autenticacao', upload.fields([
+  { name: 'residencia', maxCount: 1 },
+  { name: 'identidade', maxCount: 1 }
+]), async (req, res) => {
+  console.log('BODY', req.body);
+  console.log('FILES', req.files);
+  try {
+    const residencia = req.files['residencia'] ? req.files['residencia'][0].filename : null;
+    const identidade = req.files['identidade'] ? req.files['identidade'][0].filename : null;
+    const { banco, agencia, conta, tipo, original_id, original_type } = req.body;
+
+    if (!residencia || !identidade || !banco || !agencia || !conta || !tipo || !original_id || !original_type) {
+      return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+    }
+
+    // 1. Insere na tabela autentica
+    await pool.query(
+      `INSERT INTO autentica (residencia, identidade, banco, agencia, conta, tipo) VALUES (?, ?, ?, ?, ?, ?)`,
+      [residencia, identidade, banco, agencia, conta, tipo]
+    );
+
+    // 2. Busca dados do usuário na tabela correta
+    const tableMap = {
+      gamer: 'user_gamer',
+      developer: 'user_developer',
+      investor: 'user_investor',
+      admin: 'user_admin'
+    };
+    const userTable = tableMap[original_type];
+    if (!userTable) {
+      return res.status(400).json({ error: 'Tipo de usuário inválido.' });
+    }
+
+    const [users] = await pool.query(
+      `SELECT * FROM ${userTable} WHERE id = ?`,
+      [original_id]
+    );
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado.' });
+    }
+    const user = users[0];
+
+    // 3. Só insere se não existir
+    const [exists] = await pool.query(
+      `SELECT id FROM authenticated_user WHERE username = ?`,
+      [user.username]
+    );
+
+    if (exists.length === 0) {
+      await pool.query(
+        `INSERT INTO authenticated_user 
+          (original_id, original_type, username, nome, email, senha, cnpj) 
+          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          original_id,
+          original_type,
+          user.username,
+          user.nome,
+          user.email,
+          user.senha,
+          user.cnpj || null
+        ]
+      );
+    }
+
+    res.status(201).json({ message: 'Dados enviados e usuário autenticado com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao salvar autenticação:', error);
+    if (error.sqlMessage) {
+      console.error('Erro SQL:', error.sqlMessage);
+    }
+    if (error.stack) {
+      console.error('Stack:', error.stack);
+    }
+    res.status(500).json({ error: 'Erro ao salvar autenticação.' });
+  }
+});
 
 // Iniciar o servidor
 startServer();

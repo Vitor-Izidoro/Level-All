@@ -226,6 +226,7 @@ function LandingPage() {
               <div className={`profile-reddit-dropdown${profileMenuOpen ? " open" : ""}`}>
                 <a href="/perfil" className="profile-reddit-dropdown-item">Perfil</a>
                 <a href="/configuracoes" className="profile-reddit-dropdown-item">Configurações</a>
+                <a href="/autenticacao" className="profile-reddit-dropdown-item">Autenticação</a>
               </div>
             </button>          ) : (
             <div style={{ display: 'flex', gap: '10px' }}>
