@@ -19,12 +19,11 @@ function Comunidades() {
         <nav className="sidebar-nav">
           <ul>
             <li><Link to="/" className="sidebar-btn animated">🏠 Página Inicial</Link></li>
-            <li><Link to="/explorar" className="sidebar-btn animated"># Explorar</Link></li>
+            <li><Link to="/comunidades" className="sidebar-btn animated">👥 Comunidades</Link></li>
             <li><Link to="/tags" className="sidebar-btn animated">🏷️ Suas tags</Link></li>
             <li><Link to="/mensagens" className="sidebar-btn animated">💬 Mensagens</Link></li>
             <li><Link to="/notificacoes" className="sidebar-btn animated">🔔 Notificações</Link></li>
             <li><Link to="/perfil" className="sidebar-btn animated">👤 Perfil</Link></li>
-            <li><Link to="/comunidades" className="sidebar-btn animated">👥 Comunidades</Link></li>
           </ul>
         </nav>
         <div className="sidebar-footer">

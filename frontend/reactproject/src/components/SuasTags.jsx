@@ -18,12 +18,11 @@ function SuasTags() {
         <nav className="sidebar-nav">
           <ul>
             <li><a href="/" className="sidebar-btn animated">🏠 Página Inicial</a></li>
-            <li><a href="/explorar" className="sidebar-btn animated"># Explorar</a></li>
+            <li><a href="/comunidades" className="sidebar-btn animated">👥 Comunidades</a></li>
             <li><a href="/tags" className="sidebar-btn animated">🏷️ Suas tags</a></li>
             <li><a href="/mensagens" className="sidebar-btn animated">💬 Mensagens</a></li>
             <li><a href="/notificacoes" className="sidebar-btn animated">🔔 Notificações</a></li>
             <li><a href="/perfil" className="sidebar-btn animated">👤 Perfil</a></li>
-            <li><a href="/comunidades" className="sidebar-btn animated">👥 Comunidades</a></li>
           </ul>
         </nav>
         <div className="sidebar-footer">

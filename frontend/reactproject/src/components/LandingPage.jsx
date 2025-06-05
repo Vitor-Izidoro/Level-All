@@ -148,8 +148,8 @@ function LandingPage() {
               </Link>
             </li>
             <li>
-              <Link to="/explorar" className="sidebar-btn animated">
-                <span role="img" aria-label="Explorar">#</span> Explorar
+              <Link to="/comunidades" className="sidebar-btn animated">
+                <span role="img" aria-label="Comunidades">👥</span> Comunidades
               </Link>
             </li>
             <li>
@@ -172,11 +172,7 @@ function LandingPage() {
                 <span role="img" aria-label="Perfil">👤</span> Perfil
               </Link>
             </li>
-            <li>
-              <Link to="/comunidades" className="sidebar-btn animated">
-                <span role="img" aria-label="Comunidades">👥</span> Comunidades
-              </Link>
-            </li>
+            
           </ul>
         </nav>
         <div className="sidebar-footer">
