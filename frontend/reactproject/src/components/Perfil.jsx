@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from "react";
 import SidebarToggle from './SidebarToggle';
 import { useNavigate } from 'react-router-dom';
-import { logout } from '../config/api';
+import { logout, deleteUser } from '../config/api';
 import { useAuth } from '../context/AuthContext';
+import ConfirmModal from './ConfirmModal';
 
 function Perfil() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { usuario, setAutenticado, setUsuario } = useAuth();
   
@@ -13,11 +17,37 @@ function Perfil() {
     setSidebarOpen(!sidebarOpen);
   };
 
+  const handleEditProfile = () => {
+    navigate('/editar-perfil');
+  };
+  
   const handleLogout = () => {
     logout();
     setAutenticado(false);
     setUsuario(null);
     navigate('/login');
+  };
+  
+  const handleDeleteAccount = async () => {
+    if (!usuario) return;
+    
+    try {
+      setDeleting(true);
+      await deleteUser(usuario.username);
+      
+      // Limpar dados do usuário e autenticação
+      logout();
+      setAutenticado(false);
+      setUsuario(null);
+      
+      // Redirecionar para a página de login
+      navigate('/login');
+    } catch (err) {
+      setError('Erro ao excluir conta. Tente novamente mais tarde.');
+      console.error('Erro ao excluir conta:', err);
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+    }
   };
   
   return (    <div className="landing-root">
@@ -74,25 +104,86 @@ function Perfil() {
                 <p><strong>Email:</strong> {usuario.email}</p>
                 <p><strong>Tipo de Usuário:</strong> {usuario.userType}</p>
               </div>
+                <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: "20px"
+              }}>
+                <button 
+                  onClick={handleEditProfile}
+                  style={{
+                    padding: "10px 15px",
+                    backgroundColor: "#673ab7",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
+                >
+                  Editar Perfil
+                </button>
+                
+                <button 
+                  onClick={handleLogout}
+                  style={{
+                    padding: "10px 15px",
+                    backgroundColor: "#ff4d4d",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
+                >
+                  Sair
+                </button>
+              </div>
               
-              <button 
-                onClick={handleLogout}
-                style={{
-                  marginTop: "20px",
-                  padding: "10px 15px",
-                  backgroundColor: "#ff4d4d",
-                  color: "white",
-                  border: "none",
+              {/* Botão de excluir conta */}
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "20px",
+                borderTop: "1px solid #ddd",
+                paddingTop: "15px"
+              }}>
+                <button 
+                  onClick={() => setShowDeleteConfirm(true)}
+                  style={{
+                    padding: "8px 15px",
+                    backgroundColor: "#d32f2f",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
+                  disabled={deleting}
+                >
+                  {deleting ? "Excluindo..." : "Excluir Conta"}
+                </button>
+              </div>
+                {error && (
+                <div style={{
+                  margin: "15px 0",
+                  padding: "10px",
+                  backgroundColor: "#ffebee",
+                  color: "#c62828",
                   borderRadius: "4px",
-                  cursor: "pointer"
-                }}
-              >
-                Sair
-              </button>
+                  textAlign: "center"
+                }}>
+                  {error}
+                </div>
+              )}
             </div>
           )}
         </div>
       </main>
+        {/* Modal de confirmação para excluir conta */}
+      <ConfirmModal 
+        isOpen={showDeleteConfirm}
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setShowDeleteConfirm(false)}
+        message="Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão removidos permanentemente do sistema."
+      />
     </div>
   );
 }

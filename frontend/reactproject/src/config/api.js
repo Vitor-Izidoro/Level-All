@@ -110,16 +110,122 @@ export const register = async (username, nome, email, senha, userType, cnpj) => 
   }
 };
 
-// Função para verificar se o usuário está autenticado
-export const verificarAutenticacao = () => {
-  const token = localStorage.getItem('token');
-  return !!token; // Retorna true se o token existir, false caso contrário
-};
-
 // Função para logout
 export const logout = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+};
+
+// Função para verificar se um nome de usuário já está em uso
+export const checkUsernameAvailable = async (username, userType, currentUserId) => {
+  try {
+    // Determinar a tabela com base no tipo de usuário
+    let userTable;
+    switch(userType) {
+      case 'gamer': userTable = 'user_gamer'; break;
+      case 'developer': userTable = 'user_developer'; break;
+      case 'investor': userTable = 'user_investor'; break;
+      case 'admin': userTable = 'user_admin'; break;
+      default: throw new Error('Tipo de usuário inválido');
+    }
+    
+    // Verificar se o nome de usuário já existe para outro usuário
+    const response = await api.get(`/check-username?username=${username}&table=${userTable}&userId=${currentUserId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao verificar disponibilidade de nome de usuário:', error);
+    throw error;
+  }
+};
+
+// Função para atualizar perfil do usuário
+export const updateProfile = async (userId, userData, userType) => {
+  try {
+    console.log(`Atualizando dados do usuário ${userId} do tipo ${userType}`);
+    
+    // Verificar se o nome de usuário foi alterado e, se sim, verificar se está disponível
+    const originalUsername = localStorage.getItem('user') 
+      ? JSON.parse(localStorage.getItem('user')).username 
+      : null;
+    
+    if (originalUsername && userData.username !== originalUsername) {
+      try {
+        const checkResult = await checkUsernameAvailable(userData.username, userType, userId);
+        if (!checkResult.available) {
+          throw new Error('Este nome de usuário já está em uso. Por favor, escolha outro.');
+        }
+      } catch (error) {
+        if (error.message === 'Este nome de usuário já está em uso. Por favor, escolha outro.') {
+          throw error;
+        }
+        // Se o erro não for de indisponibilidade, continuamos e deixamos o backend lidar com isso
+        console.warn('Não foi possível verificar disponibilidade do nome de usuário:', error);
+      }
+    }
+    
+    // Determinar a URL com base no tipo de usuário
+    let endpoint;
+    switch(userType) {
+      case 'gamer':
+        endpoint = `/user_gamer/${userId}`;
+        break;
+      case 'developer':
+        endpoint = `/user_developer/${userId}`;
+        break;
+      case 'investor':
+        endpoint = `/user_investor/${userId}`;
+        break;
+      case 'admin':
+        endpoint = `/user_admin/${userId}`;
+        break;
+      default:
+        throw new Error('Tipo de usuário inválido');
+    }
+    
+    const response = await api.put(endpoint, userData, {
+      timeout: 10000 // 10 segundos de timeout
+    });
+    
+    // Atualizar os dados do usuário no localStorage
+    if (response.data) {
+      const userData = response.data;
+      localStorage.setItem('user', JSON.stringify({
+        ...userData,
+        userType: userType
+      }));
+    }
+    
+    console.log('Perfil atualizado com sucesso:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao atualizar perfil:', error);
+    
+    if (error.response) {
+      console.error('Resposta de erro do servidor:', error.response.data);
+      
+      if (error.response.status === 400) {
+        throw new Error(error.response.data.error || 'Dados inválidos');
+      } else if (error.response.status === 404) {
+        throw new Error('Usuário não encontrado');
+      } else if (error.response.status === 500) {
+        throw new Error('Erro no servidor. Tente novamente mais tarde.');
+      }
+      
+      throw error;
+    }
+    
+    if (error.request) {
+      throw new Error('Não foi possível se conectar ao servidor. Verifique sua conexão.');
+    }
+    
+    throw error;
+  }
+};
+
+// Função para verificar se o usuário está autenticado
+export const verificarAutenticacao = () => {
+  const token = localStorage.getItem('token');
+  return !!token; // Retorna true se o token existir, false caso contrário
 };
 
 // operações de usuário

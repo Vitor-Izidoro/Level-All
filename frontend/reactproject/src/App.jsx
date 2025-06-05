@@ -5,6 +5,7 @@ import SuasTags from "./components/SuasTags";
 import Mensagens from "./components/Mensagens";
 import Notificacoes from "./components/Notificacoes";
 import Perfil from "./components/Perfil";
+import EditProfile from "./components/EditProfile";
 import Comunidades from "./components/Comunidades";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -24,9 +25,9 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           
           {/* Rotas protegidas - requerem autenticação */}
-          <Route path="/explorar" element={
+          <Route path="/comunidades" element={
             <RotaProtegida>
-              <Explorar />
+              <Comunidades />
             </RotaProtegida>
           } />
           <Route path="/tags" element={
@@ -49,9 +50,9 @@ function App() {
               <Perfil />
             </RotaProtegida>
           } />
-          <Route path="/comunidades" element={
+          <Route path="/editar-perfil" element={
             <RotaProtegida>
-              <Comunidades />
+              <EditProfile />
             </RotaProtegida>
           } />
         </Routes>

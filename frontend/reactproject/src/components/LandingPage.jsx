@@ -24,7 +24,7 @@ function LandingPage() {
   const staticPages = [
     { name: "Mensagens", path: "/mensagens" },
     { name: "Notificações", path: "/notificacoes" },
-    { name: "Explorar", path: "/explorar" },
+  //  { name: "Explorar", path: "/explorar" },
     { name: "Comunidades", path: "/comunidades" },
     { name: "Perfil", path: "/perfil" },
     { name: "Página Inicial", path: "/" }

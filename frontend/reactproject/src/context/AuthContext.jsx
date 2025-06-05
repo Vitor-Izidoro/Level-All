@@ -9,6 +9,14 @@ export const AuthProvider = ({ children }) => {
   const [autenticado, setAutenticado] = useState(false);
   const [usuario, setUsuario] = useState(null);
   const [carregando, setCarregando] = useState(true);
+
+  // Função para atualizar os dados do usuário no localStorage quando o estado do usuário mudar
+  useEffect(() => {
+    if (usuario && autenticado) {
+      localStorage.setItem('user', JSON.stringify(usuario));
+    }
+  }, [usuario, autenticado]);
+
   useEffect(() => {
     // Verifica se o usuário está autenticado quando o componente é montado
     const verificarUsuario = async () => {
