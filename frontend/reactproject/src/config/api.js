@@ -364,10 +364,24 @@ export const getContactById = async (id) => {
 export const createContact = async (contact) => {
   try {
     const response = await api.post('/contacts', contact);
-    return response.data;
+    console.log(response);
+
+    // Esperamos status 201 para sucesso na criação
+    if (response.status !== 201) {
+      throw new Error(`Erro inesperado: status ${response.status}`);
+    }
+
+    return response.data; // contém id, user_id, contact_id
+
   } catch (error) {
-    console.error('Erro ao criar contato:', error);
-    throw error;
+    console.error('Erro ao criar sdfsfsdf:', error);
+
+    // Se erro veio do backend com mensagem JSON, lança para ser tratado no frontend
+    if (error.response?.data?.error) {
+      throw new Error(error.response.data.error);
+    }
+
+    throw new Error('Falha na comunicação com o servidor');
   }
 };
 
@@ -395,13 +409,15 @@ export const deleteContact = async (id) => {
 // CRUD DE MESSAGES
 export const getMessages = async (contactId) => {
   try {
-    const response = await api.get(`/contacts/${contactId}/messages`);
+    const response = await api.get(`/messages?contactId=${contactId}`);
     return response.data;
   } catch (error) {
     console.error('Erro ao buscar mensagens:', error);
     throw error;
   }
 };
+
+
 
 export const getMessageById = async (contactId, messageId) => {
   try {
@@ -413,9 +429,9 @@ export const getMessageById = async (contactId, messageId) => {
   }
 };
 
-export const createMessage = async (contactId, message) => {
+export const createMessage = async (message) => {
   try {
-    const response = await api.post(`/contacts/${contactId}/messages`, message);
+    const response = await api.post(`/messages`, message);
     return response.data;
   } catch (error) {
     console.error('Erro ao criar mensagem:', error);

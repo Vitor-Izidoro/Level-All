@@ -20,7 +20,7 @@ const corsOptions = {
   credentials: true
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 // rota de login
@@ -367,11 +367,12 @@ app.get('/contacts/:id', async (req, res) => {
 
 // POST - Criar novo contato
 app.post('/contacts', async (req, res) => {
-  const { user_id, contact_user_id } = req.body;
+  console.log(req.body);
+  const { user_id, contact_id } = req.body;
   try {
     const [result] = await pool.query(
-      `INSERT INTO contacts (user_id, contact_user_id) VALUES (?, ?)`,
-      [user_id, contact_user_id]
+      `INSERT INTO contacts (user_id, contact_id) VALUES (?, ?)`,
+      [user_id, contact_id]
     );
     const [newContact] = await pool.query(`SELECT * FROM contacts WHERE id = ?`, [result.insertId]);
     res.status(201).json(newContact[0]);
@@ -383,11 +384,11 @@ app.post('/contacts', async (req, res) => {
 
 // PUT - Atualizar contato existente
 app.put('/contacts/:id', async (req, res) => {
-  const { user_id, contact_user_id } = req.body;
+  const { user_id, contact_id } = req.body;
   try {
     const [result] = await pool.query(
-      `UPDATE contacts SET user_id = ?, contact_user_id = ? WHERE id = ?`,
-      [user_id, contact_user_id, req.params.id]
+      `UPDATE contacts SET user_id = ?, contact_id = ? WHERE id = ?`,
+      [user_id, contact_id, req.params.id]
     );
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Contato não encontrado' });
@@ -416,11 +417,35 @@ app.delete('/contacts/:id', async (req, res) => {
 
 // GET - Todas as mensagens
 app.get('/messages', async (req, res) => {
+  const contactId = req.query.contactId;
+  if (!contactId) {
+    return res.status(400).json({ error: 'Parâmetro contactId é obrigatório' });
+  }
+
   try {
-    const [rows] = await pool.query(`SELECT * FROM messages`);
+    const [rows] = await pool.query(
+      `SELECT * FROM messages WHERE contact_id = ? ORDER BY enviada_em ASC`,
+      [contactId]
+    );
     res.json(rows);
   } catch (error) {
     console.error('Erro ao buscar mensagens:', error);
+    res.status(500).json({ error: 'Erro ao buscar mensagens' });
+  }
+});
+
+// GET /contacts/:contactId/messages
+app.get('/contacts/:contactId/messages', async (req, res) => {
+  const { contactId } = req.params;
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM messages WHERE contact_id = ? ORDER BY enviada_em ASC`,
+      [contactId]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Erro ao buscar mensagens:', err);
     res.status(500).json({ error: 'Erro ao buscar mensagens' });
   }
 });
@@ -493,14 +518,8 @@ app.get('/', async (req, res) => {
   try {
     const [rows] = await pool.query(`
       SELECT 
-        id,
-        nome,
-        email,
-        genero,
-        telefone,
-        endereco,
-        filmeFav
-      FROM users
+        *
+      FROM authenticated_user
     `);
     res.json(rows);
   } catch (error) {
@@ -1024,4 +1043,3 @@ app.post('/api/autenticacao', upload.fields([
 
 // Iniciar o servidor
 startServer();
-
