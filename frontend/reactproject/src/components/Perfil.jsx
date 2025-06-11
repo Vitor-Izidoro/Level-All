@@ -12,6 +12,38 @@ function Perfil() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { usuario, setAutenticado, setUsuario } = useAuth();
+
+  
+  // Componente auxiliar para imprimir cada par rótulo/valor
+  const InfoItem = ({ label, value }) => (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      borderBottom: '1px dashed #e5e7eb',
+      paddingBottom: 8
+    }}>
+      <span style={{ fontWeight: 600, color: '#f2f2ff' }}>{label}:</span>
+      <span style={{ color: '#f2f2ff' }}>{value}</span>
+    </div>
+  );
+
+  // Estilo base dos botões (reutilizável)
+  const buttonStyle = (bg, hover) => ({
+    flex: 1,
+    padding: '12px 0',
+    backgroundColor: bg,
+    color: '#fff',
+    border: 'none',
+    borderRadius: 6,
+    fontWeight: 600,
+    fontSize: '1rem',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease',
+    boxShadow: '0 1px 4px rgba(0, 0, 0, 0.06)',
+    ':hover': {
+      backgroundColor: hover
+    }
+  });
   
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -79,101 +111,89 @@ function Perfil() {
       <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       
       <main className={`main-content ${!sidebarOpen ? 'sidebar-closed' : ''}`}>
-        <header className="main-header">
-          <input className="search-bar" placeholder="Pesquisar..." />
-          
-        </header>
         <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", marginTop: 40 }}>
-          <h2 style={{ color: "#3a3341" }}>Perfil</h2>
           
           {usuario && (
-            <div style={{ 
-              width: "80%", 
-              maxWidth: "600px", 
-              padding: "20px", 
-              marginTop: "20px", 
-              border: "1px solid #ddd", 
-              borderRadius: "8px",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          <div style={{
+            maxWidth: 480,
+            width: '100%',
+            marginTop: 40,
+            padding: 28,
+            backgroundColor: '#7a579b',
+            borderRadius: 12,
+            boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
+            border: '1px solid #e5e7eb',
+            fontFamily: 'system-ui, sans-serif',
+          }}>
+            <h2 style={{
+              fontSize: '1.6rem',
+              fontWeight: 700,
+              marginBottom: 24,
+              color: '#f2f2ff',
+              borderBottom: '1px solidrgb(13, 13, 13)',
+              paddingBottom: 12
             }}>
-              <h3>Informações do Usuário</h3>
-              <div style={{ marginTop: "15px" }}>
-                <p><strong>Nome de Usuário:</strong> {usuario.username}</p>
-                <p><strong>Nome Completo:</strong> {usuario.nome}</p>
-                <p><strong>Email:</strong> {usuario.email}</p>
-                <p><strong>Tipo de Usuário:</strong> {usuario.userType}</p>
-              </div>
-                <div style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: "20px"
-              }}>
-                <button 
-                  onClick={handleEditProfile}
-                  style={{
-                    padding: "10px 15px",
-                    backgroundColor: "#673ab7",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Editar Perfil
-                </button>
-                
-                <button 
-                  onClick={handleLogout}
-                  style={{
-                    padding: "10px 15px",
-                    backgroundColor: "#ff4d4d",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer"
-                  }}
-                >
-                  Sair
-                </button>
-              </div>
-              
-              {/* Botão de excluir conta */}
-              <div style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "20px",
-                borderTop: "1px solid #ddd",
-                paddingTop: "15px"
-              }}>
-                <button 
-                  onClick={() => setShowDeleteConfirm(true)}
-                  style={{
-                    padding: "8px 15px",
-                    backgroundColor: "#d32f2f",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer"
-                  }}
-                  disabled={deleting}
-                >
-                  {deleting ? "Excluindo..." : "Excluir Conta"}
-                </button>
-              </div>
-                {error && (
-                <div style={{
-                  margin: "15px 0",
-                  padding: "10px",
-                  backgroundColor: "#ffebee",
-                  color: "#c62828",
-                  borderRadius: "4px",
-                  textAlign: "center"
-                }}>
-                  {error}
-                </div>
-              )}
+              Perfil do Usuário
+            </h2>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <InfoItem label="Nome de Usuário" value={usuario.username} />
+              <InfoItem label="Nome Completo" value={usuario.nome} />
+              <InfoItem label="Email" value={usuario.email} />
+              <InfoItem label="Tipo de Usuário" value={usuario.userType} />
             </div>
-          )}
+
+            <div style={{ display: 'flex', gap: 12, marginTop: 28 }}>
+              <button
+                onClick={handleEditProfile}
+                style={buttonStyle('#4f46e5', '#3730a3')}
+              >
+                Editar Perfil
+              </button>
+              <button
+                onClick={handleLogout}
+                style={buttonStyle('#ef4444', '#b91c1c')}
+              >
+                Sair
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              disabled={deleting}
+              style={{
+                marginTop: 20,
+                width: '100%',
+                padding: '12px 0',
+                backgroundColor: deleting ? '#9b1c1c' : '#dc2626',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 6,
+                fontWeight: 600,
+                fontSize: '1rem',
+                cursor: deleting ? 'not-allowed' : 'pointer',
+                opacity: deleting ? 0.7 : 1,
+                transition: 'background 0.3s',
+              }}
+            >
+              {deleting ? 'Excluindo...' : 'Excluir Conta'}
+            </button>
+
+            {error && (
+              <div style={{
+                marginTop: 16,
+                padding: 12,
+                backgroundColor: '#fee2e2',
+                color: '#991b1b',
+                borderRadius: 6,
+                fontWeight: 500,
+                textAlign: 'center',
+              }}>
+                {error}
+              </div>
+            )}
+          </div>
+        )}
         </div>
       </main>
         {/* Modal de confirmação para excluir conta */}

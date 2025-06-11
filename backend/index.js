@@ -20,7 +20,7 @@ const corsOptions = {
   credentials: true
 };
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // rota de login
