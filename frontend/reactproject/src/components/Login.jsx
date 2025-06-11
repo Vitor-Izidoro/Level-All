@@ -172,7 +172,7 @@ const Login = () => {
         </div>
         
         <div style={{ marginBottom: '25px' }}>
-          <label htmlFor="userType" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333' }}>
+          <label htmlFor="userType" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#2d2633' }}>
             Tipo de Usuário:
           </label>
           <select

@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import SidebarToggle from './SidebarToggle';
 
 function Autenticacao() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [arquivos, setArquivos] = useState({
     residencia: null,
@@ -16,6 +19,17 @@ function Autenticacao() {
   const [loading, setLoading] = useState(false);
   const [mensagem, setMensagem] = useState('');
   const [erro, setErro] = useState('');
+  const [comunidadeContext, setComunidadeContext] = useState(null);
+
+  useEffect(() => {
+    // Verificar se veio da criação de comunidade
+    if (location.state?.comunidadeId) {
+      setComunidadeContext({
+        id: location.state.comunidadeId,
+        nome: location.state.comunidadeNome
+      });
+    }
+  }, [location]);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
@@ -69,10 +83,13 @@ function Autenticacao() {
     formData.append('agencia', dadosBancarios.agencia);
     formData.append('conta', dadosBancarios.conta);
     formData.append('tipo', dadosBancarios.tipo);
-
-    // Adiciona os campos obrigatórios do backend
     formData.append('original_id', user.id);
     formData.append('original_type', user.userType);
+
+    // Se veio da criação de comunidade, adiciona o contexto
+    if (comunidadeContext) {
+      formData.append('comunidade_id', comunidadeContext.id);
+    }
 
     try {
       const response = await fetch('http://localhost:3000/api/autenticacao', {
@@ -83,6 +100,13 @@ function Autenticacao() {
         setMensagem('Dados enviados com sucesso!');
         setArquivos({ residencia: null, identidade: null });
         setDadosBancarios({ banco: '', agencia: '', conta: '', tipo: '' });
+        
+        // Se veio da criação de comunidade, redireciona de volta
+        if (comunidadeContext) {
+          setTimeout(() => {
+            navigate('/comunidades');
+          }, 2000);
+        }
       } else {
         setErro('Erro ao enviar dados. Tente novamente.');
       }
@@ -134,8 +158,20 @@ function Autenticacao() {
             border: '1px solid #ddd'
           }}>
             <h2 style={{ fontSize: '24px', marginBottom: '15px', color: '#333', textAlign: 'center' }}>
-              Autenticação de Documentos
+              {comunidadeContext 
+                ? `Autenticação para Comunidade: ${comunidadeContext.nome}`
+                : 'Autenticação de Documentos'}
             </h2>
+            {comunidadeContext && (
+              <p style={{ 
+                marginBottom: '20px', 
+                color: '#666', 
+                textAlign: 'center',
+                fontSize: '14px'
+              }}>
+                Para criar uma comunidade monetizada, precisamos verificar seus documentos.
+              </p>
+            )}
             <form onSubmit={handleSubmit}>
               {/* Comprovante de residência */}
               <div style={{ marginBottom: '20px' }}>

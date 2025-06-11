@@ -14,6 +14,7 @@ import ServerStatus from "./components/ServerStatus";
 import Autenticacao from "./components/Autenticacao"; 
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/AuthContext";
+import CriarComunidade from "./components/CriarComunidade";
 
 function App() {
   return (
@@ -29,6 +30,11 @@ function App() {
           <Route path="/comunidades" element={
             <RotaProtegida>
               <Comunidades />
+            </RotaProtegida>
+          } />
+          <Route path="/comunidades/criar" element={
+            <RotaProtegida>
+              <CriarComunidade />
             </RotaProtegida>
           } />
           <Route path="/tags" element={

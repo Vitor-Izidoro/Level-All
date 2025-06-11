@@ -1041,5 +1041,155 @@ app.post('/api/autenticacao', upload.fields([
   }
 });
 
+// Tabelas de comunidades
+app.post('/comunidades', verificarToken, upload.single('banner'), async (req, res) => {
+  try {
+    const { nome, descricao, tags, monetizado } = req.body;
+    const banner = req.file ? req.file.filename : null;
+
+    // Inserir a comunidade
+    const [result] = await pool.query(
+      'INSERT INTO comunidades (nome, descricao, criador_id, banner, tags, monetizado) VALUES (?, ?, ?, ?, ?, ?)',
+      [nome, descricao, req.usuario.id, banner, tags, monetizado === 'true']
+    );
+
+    // Adicionar o criador como membro da comunidade
+    await pool.query(
+      'INSERT INTO membros_comunidade (comunidade_id, usuario_id) VALUES (?, ?)',
+      [result.insertId, req.usuario.id]
+    );
+
+    res.json({
+      id: result.insertId,
+      nome,
+      descricao,
+      tags,
+      monetizado: monetizado === 'true',
+      banner: banner ? `/uploads/${banner}` : null
+    });
+  } catch (error) {
+    console.error('Erro ao criar comunidade:', error);
+    res.status(500).json({ error: 'Erro ao criar comunidade' });
+  }
+});
+
+// Listar comunidades do usuário
+app.get('/comunidades', verificarToken, async (req, res) => {
+  try {
+    const [comunidades] = await pool.query(`
+      SELECT c.*, 
+             (SELECT COUNT(*) FROM membros_comunidade WHERE comunidade_id = c.id) as total_membros
+      FROM comunidades c
+      INNER JOIN membros_comunidade m ON c.id = m.comunidade_id
+      WHERE m.usuario_id = ?
+    `, [req.usuario.id]);
+    res.json(comunidades);
+  } catch (error) {
+    console.error('Erro ao listar comunidades:', error);
+    res.status(500).json({ error: 'Erro ao listar comunidades' });
+  }
+});
+
+// Entrar em uma comunidade
+app.post('/comunidades/:id/entrar', verificarToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      'INSERT INTO membros_comunidade (comunidade_id, usuario_id) VALUES (?, ?)',
+      [id, req.usuario.id]
+    );
+    res.json({ message: 'Entrou na comunidade com sucesso' });
+  } catch (error) {
+    console.error('Erro ao entrar na comunidade:', error);
+    res.status(500).json({ error: 'Erro ao entrar na comunidade' });
+  }
+});
+
+// Sair de uma comunidade
+app.delete('/comunidades/:id/sair', verificarToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      'DELETE FROM membros_comunidade WHERE comunidade_id = ? AND usuario_id = ?',
+      [id, req.usuario.id]
+    );
+    res.json({ message: 'Saiu da comunidade com sucesso' });
+  } catch (error) {
+    console.error('Erro ao sair da comunidade:', error);
+    res.status(500).json({ error: 'Erro ao sair da comunidade' });
+  }
+});
+
+// Criar post em uma comunidade
+app.post('/comunidades/:id/posts', verificarToken, upload.single('imagem'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { texto, hashtags } = req.body;
+    const imagem = req.file ? req.file.filename : null;
+
+    // Verificar se o usuário é membro da comunidade
+    const [membro] = await pool.query(
+      'SELECT * FROM membros_comunidade WHERE comunidade_id = ? AND usuario_id = ?',
+      [id, req.usuario.id]
+    );
+
+    if (membro.length === 0) {
+      return res.status(403).json({ error: 'Você precisa ser membro da comunidade para postar' });
+    }
+
+    const [result] = await pool.query(
+      'INSERT INTO posts_comunidade (comunidade_id, usuario_id, texto, hashtags, imagem) VALUES (?, ?, ?, ?, ?)',
+      [id, req.usuario.id, texto, hashtags, imagem]
+    );
+
+    res.json({
+      id: result.insertId,
+      texto,
+      hashtags,
+      imagem: imagem ? `/uploads/${imagem}` : null
+    });
+  } catch (error) {
+    console.error('Erro ao criar post na comunidade:', error);
+    res.status(500).json({ error: 'Erro ao criar post na comunidade' });
+  }
+});
+
+// Listar posts das comunidades do usuário
+app.get('/posts/community', verificarToken, async (req, res) => {
+  try {
+    const [posts] = await pool.query(`
+      SELECT 
+        pc.*,
+        u.nome as user_nome,
+        u.username as user_username,
+        c.nome as comunidade_nome
+      FROM posts_comunidade pc
+      INNER JOIN comunidades c ON pc.comunidade_id = c.id
+      INNER JOIN membros_comunidade m ON c.id = m.comunidade_id
+      INNER JOIN user_gamer u ON pc.usuario_id = u.id
+      WHERE m.usuario_id = ?
+      ORDER BY pc.created_at DESC
+    `, [req.usuario.id]);
+
+    res.json(posts.map(post => ({
+      id: post.id,
+      texto: post.texto,
+      hashtags: post.hashtags,
+      imagem: post.imagem ? `/uploads/${post.imagem}` : null,
+      created_at: post.created_at,
+      user: {
+        nome: post.user_nome,
+        username: post.user_username
+      },
+      comunidade: {
+        nome: post.comunidade_nome
+      }
+    })));
+  } catch (error) {
+    console.error('Erro ao listar posts das comunidades:', error);
+    res.status(500).json({ error: 'Erro ao listar posts das comunidades' });
+  }
+});
+
 // Iniciar o servidor
 startServer();
