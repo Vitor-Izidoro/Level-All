@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../index.css";
-import Icon from "../../assets/icons/icons";
 import logo_site from '../../assets/logos/002.png';
-import ProfileMenu from '../perfil/ProfileMenu';
 import SidebarToggle from '../shared/SidebarToggle';
 import Sidebar from "../shared/Sidebar";
 import { useAuth } from "../../context/AuthContext"
@@ -353,7 +351,7 @@ function LandingPage() {
                   if (file && file.type.startsWith("image/")) {
               setImagem(file);
               const reader = new FileReader();
-              reader.onload = ev => setPostImage(ev.target.result);
+              reader.onload = (ev) => setPostImage(ev.target.result);
               reader.readAsDataURL(file);
                   }
                 }}
@@ -406,8 +404,8 @@ function LandingPage() {
                       </button>
                       {activePostOptions === idx && (
                         <div className="post-options-menu">
-                          <button onClick={() => handleEditPost(idx)}>Editar</button>
-                          <button onClick={() => handleDeletePost(idx)}>Excluir</button>
+                          <button>Editar</button>
+                          <button>Excluir</button>
                         </div>
                       )}
                     </div>
@@ -700,4 +698,3 @@ function LandingPage() {
 }
 
 export default LandingPage;
-
