@@ -68,7 +68,23 @@ function LandingPage() {
     setSuggestions([...pageSuggestions, ...feedSuggestions]);
   };
 
-
+  const handleSuggestionClick = (suggestion) => {
+    if (suggestion.path) {
+      setSearch("");
+      navigate(suggestion.path);
+    } else if (suggestion.type === "feed") {
+      // Scroll até o post correspondente
+      setSearch("");
+      setTimeout(() => {
+        const postElement = document.querySelector(`[data-feed-text='${suggestion.name.replace(/'/g, "\\'")}'`);
+        if (postElement) {
+          postElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          postElement.classList.add("highlighted-post");
+          setTimeout(() => postElement.classList.remove("highlighted-post"), 2000);
+        }
+      }, 100);
+    }
+  };
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -263,6 +279,15 @@ function LandingPage() {
     }
   };
 
+  // Função utilitária para destacar o termo pesquisado
+  function highlightTerm(text, term) {
+    if (!term) return text;
+    const regex = new RegExp(`(${term})`, 'gi');
+    return text.split(regex).map((part, i) =>
+      part.toLowerCase() === term.toLowerCase() ? <mark key={i}>{part}</mark> : part
+    );
+  }
+
   return (
     <div className="landing-root">
       <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
@@ -289,10 +314,14 @@ function LandingPage() {
                 {suggestions.map((s, idx) =>
                   s.path ? (
                     <li key={idx}>
-                      <Link to={s.path} onClick={() => setSearch("")}>{s.name}</Link>
+                      <Link to={s.path} onClick={() => handleSuggestionClick(s)}>
+                        {highlightTerm(s.name, search)}
+                      </Link>
                     </li>
                   ) : (
-                    <li key={idx} style={{ color: "#a48ad4" }}>{s.name}</li>
+                    <li key={idx} style={{ color: "#a48ad4", cursor: "pointer" }} onClick={() => handleSuggestionClick(s)}>
+                      {highlightTerm(s.name, search)}
+                    </li>
                   )
                 )}
               </ul>
@@ -416,7 +445,7 @@ function LandingPage() {
           )}
           <section className="feed-section">
             {feed.map((item, idx) => (
-              <div className="feed-card" key={idx}>
+              <div className="feed-card" key={idx} data-feed-text={item.text}>
                 <div className="feed-header">
                   <div className="feed-user-group">
                     <div className="avatar"></div>
@@ -726,6 +755,12 @@ function LandingPage() {
         .login-btn:hover {
           background: #9b7dc2;
           transform: translateY(-2px);
+        }
+
+        /* Adiciona destaque visual ao post encontrado */
+        .highlighted-post {
+          box-shadow: 0 0 0 4px #a48ad4, 0 2px 16px #a48ad4;
+          transition: box-shadow 0.3s;
         }
       `}</style>
     </div>

@@ -936,6 +936,21 @@ app.put('/posts/:id', async (req, res) => {
   }
 });
 
+// ROTA PARA DELETAR UM POST
+app.delete('/posts/:id', async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const [result] = await pool.query('DELETE FROM posts WHERE id = ?', [postId]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Post não encontrado' });
+    }
+    res.json({ message: 'Post deletado com sucesso', id: postId });
+  } catch (error) {
+    console.error('Erro ao deletar post:', error);
+    res.status(500).json({ error: 'Erro ao deletar post' });
+  }
+});
+
 // Função para testar a conexão com o banco de dados
 const testDatabaseConnection = async () => {
   try {
