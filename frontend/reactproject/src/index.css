@@ -318,16 +318,22 @@ body, html, #root {
 }
 
 .publish-section {
-  width: 90%;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 24px;
+  width: 100% !important;
+  max-width: 420px !important;  /* ou o valor desejado */
+  margin: 0 auto 32px auto !important;
+  background: transparent !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  color: #111;
 }
 
 @media (max-width: 768px) {
   .publish-section {
-    width: 100%;
+    width: 90%;
     margin-bottom: 20px;
+    color: #111;
   }
 }
 
@@ -347,6 +353,7 @@ body, html, #root {
 @media (max-width: 992px) {
   .publish-btn {
     margin-left: 0;
+    color: #111;
   }
 }
 
@@ -369,6 +376,7 @@ body, html, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: #111;
 }
 
 @media (max-width: 992px) {
@@ -376,6 +384,7 @@ body, html, #root {
     margin-left: 0;
     width: 100%;
     max-width: 600px;
+    color: #111;
   }
 }
 
@@ -384,11 +393,13 @@ body, html, #root {
     width: 100%;
     margin-left: 0;
     padding: 0 10px;
+    color: #111;
   }
   
   .feed-card {
     width: 100%;
     border-radius: 18px;
+    color: #111;
   }
   
   .feed-header {
@@ -479,7 +490,7 @@ body, html, #root {
 
 .feed-content p,
 .feed-text {
-  color: #111; /* Texto preto na publicação */
+  color: #111 !important; /* Texto preto na publicação */
   margin-bottom: 8px;
   font-size: 15px;
 }
@@ -725,12 +736,12 @@ body, html, #root {
 
 .search-suggestions {
   position: absolute;
-  top: 56px;
-  left: 0;
-  width: 75%; /* Garante que acompanha o container */
-  background: #fff;
+  top: 90px;
+  left: 33px;
+  width: 73%; /* Garante que acompanha o container */
+  background: #fff !important;
   border-radius: 0 0 16px 16px;
-  box-shadow: 0 4px 16px rgba(60, 40, 90, 0.16);
+  box-shadow: 0 4px 16px rgba(158, 123, 211, 0.16);
   z-index: 9999;
   list-style: none;
   margin: 0;
@@ -761,7 +772,7 @@ body, html, #root {
 }
 
 .search-suggestions li:hover {
-  background: #f3e9fa;
+  background: #f3e9fa !important;
 }
 
 /* Adicionar viewport meta tag para garantir responsividade em dispositivos móveis */
@@ -821,6 +832,7 @@ body, html, #root {
     order: 2;
     width: 100%;
     margin-top: 10px;
+    color: #111 !important;
   }
   
   .main-header {
@@ -834,6 +846,7 @@ body, html, #root {
     padding: 12px 16px;
     font-size: 16px;
     min-width: auto;
+    color: #111 !important; ;
   }
 }
 
@@ -892,7 +905,7 @@ body, html, #root {
 @media (max-width: 576px) {
   .modal-content {
     width: 90%;
-    max-width: 100%;
+    max-width: 420px;
     padding: 16px;
   }
   
@@ -984,12 +997,12 @@ body, html, #root {
   
   .search-bar {
     background: #3a3341;
-    color: #fff !important;
+    color: #000000 !important;
   }
   
   .search-bar:focus {
-    background: #493f52;
-    color: #fff !important;
+    background: #000000;
+    color: #000000 !important;
   }
   
   .feed-card {
@@ -1024,3 +1037,34 @@ body, html, #root {
   }
 }
 
+.publish-section .publish-title,
+.publish-section .upload-label {
+  color: #111 !important;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 32px 24px;
+  border-radius: 16px;
+  min-width: 340px;
+  max-width: 200px; /* <-- Deixe mais estreito aqui */
+  width: 100%;
+}
+
+.delete-post-btn {
+  background: none;
+  border: none;
+  color: #111;
+  font-size: 22px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: color 0.2s;
+  position: relative;
+  z-index: 100;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.delete-post-btn:hover {
+  color: #b91c1c;
+}

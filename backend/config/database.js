@@ -9,7 +9,7 @@ const dbConfig = {
   user: process.env.DB_USER || "nome",
   password: process.env.DB_PASSWORD || "nome",
   database: process.env.DB_NAME || "nome",
-  port: process.env.DB_PORT || 3306,
+  port: process.env.DB_PORT || 5000,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

@@ -5,6 +5,8 @@ import ProfileMenu from './ProfileMenu';
 import SidebarToggle from './SidebarToggle';
 import { useAuth } from "../context/AuthContext";
 
+
+
 function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [feed, setFeed] = useState([]);
@@ -84,37 +86,44 @@ function LandingPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('user_id', 1); // ou o id do usuário logado
-    formData.append('texto', postText);
-    if (imagem) formData.append('imagem', imagem);
+    if (postText.trim() === "") return;
 
-    const response = await fetch('http://localhost:3000/posts', {
-      method: 'POST',
-      body: formData,
-    });
+    // Envie para o backend normalmente...
 
-    if (response.ok) {
-      setPostText("");
-      setImagem(null);
-      setPostImage("");
-      setIsModalOpen(false);
-      fetchFeed();
-    }
+    // Adicione ao feed local com o usuário logado
+    setFeed([
+      {
+        user: usuario?.nome || "Usuário",
+        username: usuario?.username,
+        userId: usuario?.id,
+        handle: `@${usuario?.username || "voce"}`,
+        text: postText,
+        hashtags: "",
+        image: postImage ? postImage : null
+      },
+      ...feed
+    ]);
+    setPostText("");
+    setPostImage("");
+    setIsModalOpen(false);
   };
   const fetchFeed = async () => {
     try {
-      const res = await fetch('http://localhost:3000/posts');
+      const res = await fetch('/api/posts');
       const posts = await res.json();
       
       // Verificar se posts é um array antes de chamar .map()
       if (Array.isArray(posts)) {
         setFeed(posts.map(post => ({
-          user: "Usuário",
-          handle: "@usuario",
-          text: post.texto || "",
-          hashtags: "",
-          image: post.imagem ? `http://localhost:3000/uploads/${post.imagem}` : null
+          user: post.user || "Usuário",
+          username: post.username,
+          userId: post.userId,
+          handle: post.handle || (post.username ? `@${post.username}` : "@usuario"),
+          text: post.texto || post.text || "",
+          hashtags: post.hashtags || "",
+          image: post.imagem
+            ? `http://localhost:3000/uploads/${post.imagem}`
+            : post.image || null
         })));
       } else {
         // Se não for um array, define feed como um array vazio
@@ -128,8 +137,14 @@ function LandingPage() {
   };
 
   useEffect(() => {
-    fetchFeed();
+    fetch('/api/posts')
+      .then(res => res.json())
+      .then(data => setFeed(data));
   }, []);
+
+  const handleDeletePost = (idx) => {
+    setFeed(feed => feed.filter((_, i) => i !== idx));
+  };
 
   return (
     <div className="landing-root">
@@ -179,10 +194,24 @@ function LandingPage() {
           <button className="sidebar-btn animated">
             <span role="img" aria-label="Configurações">⚙️</span> Configurações
           </button>        </div>
-      </aside>      
-      {/* Botão de toggle para sidebar em dispositivos móveis */}
-      <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-      
+      </aside>
+      <button
+  className="sidebar-toggle"
+  aria-label="Abrir/fechar menu lateral"
+  onClick={toggleSidebar}
+  style={{
+    position: "fixed",
+    top: 430,
+    left: sidebarOpen ? 210 : 10, // 210px quando aberta, 80px quando fechada
+    zIndex: 200,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "left 0.3s"
+  }}
+>
+  <span style={{ fontSize: 28, lineHeight: 1 }}>☰</span>
+</button>      
       <main className={`main-content ${!sidebarOpen ? 'sidebar-closed' : ''}`}>
         <header className="main-header">
           <div className="search-bar-container">
@@ -234,18 +263,13 @@ function LandingPage() {
                 className="profile-reddit-btn" 
                 onClick={() => navigate('/login')}
               >
-                <span className="profile-reddit-name">Entrar</span>
+                <span className="profile-reddit-name">LOGIN</span>
               </button>
-              <button 
-                className="profile-reddit-btn" 
-                style={{ backgroundColor: '#4CAF50' }}
-                onClick={() => navigate('/register')}
-              >
-                <span className="profile-reddit-name">Registrar</span>
-              </button>
+              
             </div>
           )}
         </header>
+
         <div className="publish-section">
           <button
             className="publish-btn big-publish-btn"
@@ -254,100 +278,102 @@ function LandingPage() {
             + PUBLICAR NO FEED
           </button>
         </div>
-        {/* Modal de publicação */}
-        {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h2>Publicar no Feed</h2>
-              <form onSubmit={handleSubmit}>
-                <textarea
-                  value={postText}
-                  onChange={e => setPostText(e.target.value)}
-                  placeholder="Digite sua mensagem..."
-                  rows={4}
-                  style={{ width: "100%", marginBottom: 12 }}
-                />
-                <div
-                  className="dropzone"
-                  onDragOver={e => e.preventDefault()}
-                  onDrop={e => {
-                    e.preventDefault();
-                    const file = e.dataTransfer.files[0];
-                    if (file && file.type.startsWith("image/")) {
-                      setImagem(file);
-                      const reader = new FileReader();
-                      reader.onload = ev => setPostImage(ev.target.result);
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                  onClick={() => document.getElementById("fileInput").click()}
-                >
-                  {postImage ? (
-                    <img src={postImage} alt="Preview" className="feed-image" style={{ maxHeight: 180, margin: 8 }} />
-                  ) : (
-                    <span>
-                      Arraste uma imagem{" "}
-                      <span style={{ color: "#1976d2", textDecoration: "underline", cursor: "pointer" }}>
-                        aqui
-                      </span>{" "}
-                      ou clique para selecionar
-                    </span>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={e => {
-                      const file = e.target.files[0];
-                      if (file && file.type.startsWith("image/")) {
-                        setImagem(file);
-                        const reader = new FileReader();
-                        reader.onload = ev => setPostImage(ev.target.result);
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                    id="fileInput"
-                  />
-                </div>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="goto-users-btn" style={{ background: "#ccc", color: "#333" }}>
-                    Cancelar
-                  </button>
-                  <button type="submit" className="goto-users-btn">
-                    Publicar
-                  </button>
-                </div>
-              </form>
+        
+          {isModalOpen && (
+            <div className="modal-overlay">
+              <div className="modal-content" style={{ maxWidth: 380, minWidth: 0, width: "100%" }}>
+                <h2 style={{ color: "#555"}}>Publicar no Feed</h2>
+                <form onSubmit={handleSubmit}>
+            <textarea
+              value={postText}
+              onChange={e => setPostText(e.target.value)}
+              placeholder="Digite sua mensagem..."
+              rows={4}
+              style={{ width: "100%", marginBottom: 12, color: "black"}}                 />
+            <div
+              className="dropzone"
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith("image/")) {
+                  setImagem(file);
+                  const reader = new FileReader();
+                  reader.onload = ev => setPostImage(ev.target.result);
+                  reader.readAsDataURL(file);
+                }
+              }}
+              onClick={() => document.getElementById("fileInput").click()}
+            >
+              {postImage ? (
+                <img src={postImage} alt="Preview" className="feed-image" style={{ maxHeight: 180, margin: 8}} />
+              ) : (
+                <span style={{ color: "#555"}}>
+                  Arraste uma imagem{" "}
+                  <span style={{ color: "#1976d2", textDecoration: "underline", cursor: "pointer" }}>
+              aqui
+                  </span>{" "}
+                  ou clique para selecionar
+                </span>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={e => {
+                  const file = e.target.files[0];
+                  if (file && file.type.startsWith("image/")) {
+              setImagem(file);
+              const reader = new FileReader();
+              reader.onload = ev => setPostImage(ev.target.result);
+              reader.readAsDataURL(file);
+                  }
+                }}
+                id="fileInput"
+              />
             </div>
-          </div>
-        )}
-        <section className="feed-section">
-          {feed.map((item, idx) => (
-            <div className="feed-card" key={idx}>
-              <div className="feed-header">
-                <div className="avatar"></div>
-                <span className="feed-user">{item.user}</span>
-                <span className="feed-handle">{item.handle}</span>
-              </div>
-              <div className="feed-content">
-                <p className="feed-text" dangerouslySetInnerHTML={{
-                  __html: search
-                    ? item.text.replace(
-                        new RegExp(`(${search})`, "gi"),
-                        '<mark style="background:#ffe066;color:#3a3341;border-radius:4px;">$1</mark>'
-                      )
-                    : item.text
-                }} />
-                <span className="hashtags">{item.hashtags}</span>
-                {item.image && (
-                  <img className="feed-image" src={item.image} alt="Imagem do post" />
-                )}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+              <button type="button" onClick={() => setIsModalOpen(false)} className="goto-users-btn" style={{ background: "#ccc", color: "#333" }}>
+                Cancelar
+              </button>
+              <button type="submit" className="goto-users-btn">
+                Publicar
+              </button>
+            </div>
+                </form>
               </div>
             </div>
-          ))}
-        </section>
-      </main>
-      {/* Modal CSS */}
+          )}
+          <section className="feed-section">
+            {feed.map((item, idx) => (
+              <div className="feed-card" key={idx}>
+                <div className="feed-header">
+      <div className="avatar"></div>
+      <span className="feed-user">{item.user}</span>
+      <span className="feed-handle">{item.handle}</span>
+      {/* Botão de excluir só aparece se for o dono */}
+      {usuario?.id === item.userId && (
+        <button
+          className="delete-post-btn"
+          onClick={() => handleDeletePost(idx)}
+          title="Excluir postagem"
+        >
+          ×
+        </button>
+      )}
+    </div>
+    <div className="feed-content">
+      <p className="feed-text">{item.text}</p>
+      <span className="hashtags">{item.hashtags}</span>
+      {item.image && (
+        <img className="feed-image" src={item.image} alt="Imagem do post" />
+      )}
+    </div>
+  </div>
+))}
+          </section>
+              </main>
+              {/* Modal CSS */}
       <style>{`
         .modal-overlay {
           position: fixed;
@@ -623,3 +649,4 @@ function LandingPage() {
 }
 
 export default LandingPage;
+

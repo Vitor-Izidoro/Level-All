@@ -216,7 +216,7 @@ const Login = () => {
           {loading ? 'Entrando...' : 'Entrar'}
         </button>
           <div style={{ marginTop: '20px', textAlign: 'center' }}>
-          <div style={{ marginBottom: '10px' }}>
+          <div style={{ marginBottom: '10px', color: '#666' }}>
             Não tem uma conta? <Link to="/register" style={{ color: '#a48ad4', textDecoration: 'none', fontWeight: '500' }}>Registre-se</Link>
           </div>
           <Link to="/" style={{ color: '#a48ad4', textDecoration: 'none', display: 'block', marginTop: '5px' }}>

@@ -132,7 +132,7 @@ const Register = () => {
       
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="userType" style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+          <label htmlFor="userType" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: "#555" }}>
             Tipo de Conta
           </label>
           <select 
@@ -156,7 +156,7 @@ const Register = () => {
         </div>
         
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="username" style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+          <label htmlFor="username" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: "#555" }}>
             Nome de Usuário
           </label>
           <input 
@@ -177,7 +177,7 @@ const Register = () => {
         </div>
         
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="nome" style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+          <label htmlFor="nome" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: "#555" }}>
             Nome Completo
           </label>
           <input 
@@ -198,7 +198,7 @@ const Register = () => {
         </div>
         
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="email" style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+          <label htmlFor="email" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: "#555" }}>
             E-mail
           </label>
           <input 
@@ -220,7 +220,7 @@ const Register = () => {
         
         {formData.userType === 'investor' && (
           <div style={{ marginBottom: '15px' }}>
-            <label htmlFor="cnpj" style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+            <label htmlFor="cnpj" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: "#555" }}>
               CNPJ
             </label>
             <input 
@@ -243,7 +243,7 @@ const Register = () => {
         )}
         
         <div style={{ marginBottom: '15px' }}>
-          <label htmlFor="senha" style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+          <label htmlFor="senha" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: "#555" }}>
             Senha
           </label>
           <input 
@@ -264,7 +264,7 @@ const Register = () => {
         </div>
         
         <div style={{ marginBottom: '20px' }}>
-          <label htmlFor="confirmarSenha" style={{ display: 'block', marginBottom: '5px', fontWeight: '500' }}>
+          <label htmlFor="confirmarSenha" style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: "#555" }}>
             Confirmar Senha
           </label>
           <input 
@@ -291,7 +291,7 @@ const Register = () => {
             style={{ 
               width: '100%', 
               padding: '12px', 
-              backgroundColor: '#4CAF50', 
+              backgroundColor: '#A48AD4', 
               color: 'white', 
               border: 'none', 
               borderRadius: '4px', 
@@ -305,8 +305,8 @@ const Register = () => {
         </div>
       </form>
       
-      <div style={{ marginTop: '20px', textAlign: 'center' }}>
-        Já tem uma conta? <Link to="/login" style={{ color: '#4CAF50', textDecoration: 'none' }}>Faça login</Link>
+      <div style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>
+        Já tem uma conta? <Link to="/login" style={{ color: '#b39cdb', textDecoration: 'none' }}>Faça login</Link>
       </div>
     </div>
   );

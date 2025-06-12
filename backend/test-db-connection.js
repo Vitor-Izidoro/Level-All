@@ -15,7 +15,7 @@ const __dirname = dirname(__filename);
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'C0x1nh4123',
+  password: process.env.DB_PASSWORD || 'Chewie2020!',
   database: process.env.DB_NAME || 'level_all',
   port: process.env.DB_PORT || 3306
 };
