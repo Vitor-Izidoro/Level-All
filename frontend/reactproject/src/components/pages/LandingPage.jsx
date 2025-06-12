@@ -68,22 +68,7 @@ function LandingPage() {
     setSuggestions([...pageSuggestions, ...feedSuggestions]);
   };
 
-  const handlePublish = () => {
-    if (postText.trim() === "") return;
-    setFeed([
-      {
-        user: "Você",
-        handle: "@voce",
-        text: postText,
-        hashtags: "",
-        image: postImage ? postImage : null
-      },
-      ...feed
-    ]);
-    setPostText("");
-    setPostImage("");
-    setIsModalOpen(false);
-  };
+
 
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
@@ -97,113 +82,63 @@ function LandingPage() {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handlePublish = async () => {
     if (postText.trim() === "") return;
 
-    if (isEditing && editingPostId) {
-      // Caso de edição de post existente
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_URL}/posts/${editingPostId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ texto: postText })
-        });
+    await handleCreatePost();
 
-        if (response.ok) {
-          const updatedPost = await response.json();
-          
-          // Atualizar o post no feed local
-          const updatedFeed = feed.map(post => 
-            post.id === editingPostId 
-              ? { ...post, text: postText } 
-              : post
-          );
-          
-          setFeed(updatedFeed);
-          setPostText("");
-          setIsModalOpen(false);
-          setIsEditing(false);
-          setEditingPostId(null);
-        } else {
-          console.error('Erro ao atualizar post:', await response.json());
-        }
-      } catch (error) {
-        console.error('Erro ao editar post:', error);
-      }
-    } else {
-      // Caso de criação de novo post
-      // Envie para o backend normalmente...
+    setPostText("");
+    setPostImage("");
+    setImagem(null);
+    setIsModalOpen(false);
+  };
 
-      // Adicione ao feed local com o usuário logado
-      setFeed([
-        {
-          user: usuario?.nome || "Usuário",
-          username: usuario?.username,
-          userId: usuario?.id,
-          handle: `@${usuario?.username || "voce"}`,
-          text: postText,
-          hashtags: "",
-          image: postImage ? postImage : null
-        },
-        ...feed
-      ]);
-      setPostText("");
-      setPostImage("");
-      setIsModalOpen(false);
-    }
-  };  const fetchFeed = async () => {
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (postText.trim() === "") return;
+
+  const token = localStorage.getItem('token');
+
+  if (isEditing && editingPostId) {
+    // Edição de post
     try {
-      const res = await fetch(`${API_URL}/posts`);
-      const posts = await res.json();
-      
-      // Verificar se posts é um array antes de chamar .map()
-      if (Array.isArray(posts)) {
-        setFeed(posts.map(post => ({
-          id: post.id, // Importante adicionar o ID do post para edição
-          user: post.user || post.nome || "Usuário",
-          username: post.username,
-          userId: post.user_id,
-          handle: post.handle || (post.username ? `@${post.username}` : "@usuario"),
-          text: post.texto || post.text || "",
-          hashtags: post.hashtags || "",
-          image: post.imagem
-            ? `/uploads/${post.imagem}`
-            : post.image || null
-        })));
+      const response = await fetch(`${API_URL}/posts/${editingPostId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ texto: postText })
+      });
+
+      if (response.ok) {
+        const updatedPost = await response.json();
+        const updatedFeed = feed.map(post =>
+          post.id === editingPostId
+            ? { ...post, text: postText }
+            : post
+        );
+        setFeed(updatedFeed);
+        setPostText("");
+        setIsModalOpen(false);
+        setIsEditing(false);
+        setEditingPostId(null);
       } else {
-        // Se não for um array, define feed como um array vazio
-        console.error("Resposta da API não é um array:", posts);
-        setFeed([]);
+        console.error('Erro ao atualizar post:', await response.json());
       }
     } catch (error) {
-      console.error("Erro ao buscar feed:", error);
-      setFeed([]);
+      console.error('Erro ao editar post:', error);
     }
-  };
-  useEffect(() => {
-    fetchFeed();
-  }, []);
-
-  const handleDeletePost = (idx) => {
-    setFeed(feed => feed.filter((_, i) => i !== idx));
-  };
-
-  const handleCreatePost = async () => {
-    if (postText.trim() === "") return;
-
+  } else {
+    // Criação de novo post
     try {
       const formData = new FormData();
       formData.append('texto', postText);
       formData.append('user_id', usuario?.id);
-      
       if (imagem) {
         formData.append('imagem', imagem);
-      }      const token = localStorage.getItem('token');
+      }
+
       const response = await fetch(`${API_URL}/posts`, {
         method: 'POST',
         headers: {
@@ -213,15 +148,113 @@ function LandingPage() {
       });
 
       if (response.ok) {
-        const newPost = await response.json();
-        // Adicionar o novo post ao início do feed
-        fetchFeed(); // Outra opção seria construir o post localmente e adicioná-lo ao estado
-        
-        // Limpar o formulário
+        await fetchFeed(); // atualiza o feed após sucesso
         setPostText("");
         setPostImage("");
         setImagem(null);
         setIsModalOpen(false);
+      } else {
+        console.error('Erro ao criar post:', await response.json());
+      }
+    } catch (error) {
+      console.error('Erro ao criar post:', error);
+    }
+  }
+};
+
+  const fetchFeed = async () => {
+    try {
+      const res = await fetch(`${API_URL}/posts`);
+      const posts = await res.json();
+
+      if (Array.isArray(posts)) {
+        setFeed(posts.map(post => ({
+          id: post.id,
+          user: post.nome || post.user || "Usuário", // nome do usuário
+          username: post.username || "usuario",      // username do usuário
+          userId: post.user_id,
+          handle: post.username ? `@${post.username}` : (post.handle || "@usuario"),
+          text: post.texto || post.text || "",
+          hashtags: post.hashtags || "",
+          image: post.imagem
+            ? `${API_URL.replace(/\/$/, "")}/uploads/${post.imagem}`
+            : post.image || null
+        })));
+      } else {
+        console.error("Resposta da API não é um array:", posts);
+        setFeed([]);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar feed:", error);
+      setFeed([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeed();
+  }, []);
+
+  // Efeito adicional para recarregar o feed quando o status de autenticação mudar
+  useEffect(() => {
+    if (autenticado) {
+      fetchFeed();
+    }
+  }, [autenticado]);
+
+  const handleDeletePost = async (idx) => {
+    try {
+      const postToDelete = feed[idx];
+      if (!postToDelete || !postToDelete.id) {
+        console.error("Post inválido ou sem ID");
+        return;
+      }
+      
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/posts/${postToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (response.ok) {
+        // Se a exclusão no backend foi bem-sucedida, atualiza o estado local
+        console.log("Post excluído com sucesso");
+        setFeed(feed => feed.filter((_, i) => i !== idx));
+      } else {
+        const errorData = await response.json();
+        console.error('Erro ao excluir post:', errorData);
+        alert('Erro ao excluir post: ' + (errorData.error || 'Erro desconhecido'));
+      }
+    } catch (error) {
+      console.error('Erro ao excluir post:', error);
+      alert('Erro ao tentar excluir o post. Tente novamente mais tarde.');
+    }
+  };
+
+  const handleCreatePost = async () => {
+    if (postText.trim() === "") return;
+
+    try {
+      const formData = new FormData();
+      formData.append('texto', postText);
+      formData.append('user_id', usuario?.id);
+      if (imagem) {
+        formData.append('imagem', imagem);
+      }
+
+      const token = localStorage.getItem('token');
+
+      const response = await fetch(`${API_URL}/posts`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        await fetchFeed(); // atualiza o feed após sucesso
       } else {
         console.error('Erro ao criar post:', await response.json());
       }
@@ -388,8 +421,8 @@ function LandingPage() {
                   <div className="feed-user-group">
                     <div className="avatar"></div>
                     <div className="feed-user-info">
-                      <span className="feed-user">{item.user}</span>
-                      <span className="feed-handle">{item.handle}</span>
+                      <span className="feed-user">{item.nome || item.user || "Usuário"}</span>
+                      <span className="feed-handle">@{item.username || "usuario"}</span>
                     </div>
                   </div>
 
@@ -700,4 +733,3 @@ function LandingPage() {
 }
 
 export default LandingPage;
-

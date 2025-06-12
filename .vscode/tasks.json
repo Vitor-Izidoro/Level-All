@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Level-All (Frontend & Backend)",
+			"type": "shell",
+			"command": "start powershell -Command \"cd frontend/reactproject && npm run dev\" && start powershell -Command \"cd backend && node index.js\"",
+			"group": "build",
+			"problemMatcher": [],
+			"isBackground": true
+		}
+	]
+}

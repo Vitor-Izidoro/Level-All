@@ -8,6 +8,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true // Permite enviar cookies entre origens
 });
 
 // Configuração para incluir o token de autenticação nas requisições
@@ -15,9 +16,41 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+    console.log(`API Request: ${config.method?.toUpperCase()} ${config.url} - Token disponível`);
+  } else {
+    console.log(`API Request: ${config.method?.toUpperCase()} ${config.url} - Sem token`);
   }
   return config;
 });
+
+// Interceptor de resposta para tratar erros comuns
+api.interceptors.response.use(
+  response => {
+    console.log(`API Response success: ${response.config.url}`, 
+                response.status === 204 ? 'No content' : 'Data received');
+    return response;
+  },
+  error => {
+    if (error.response) {
+      // A requisição foi feita, mas o servidor retornou um status de erro
+      console.error(`API Error ${error.response.status}: ${error.config.url}`, error.response.data);
+      
+      // Tratamento específico para erros de autenticação
+      if (error.response.status === 401) {
+        console.warn('Erro de autenticação - você pode precisar fazer login novamente');
+        // Se quiser redirecionar para login: window.location.href = '/login';
+      }
+    } else if (error.request) {
+      // A requisição foi feita mas não houve resposta
+      console.error('API Error: Sem resposta do servidor', error.request);
+    } else {
+      // Erro ao configurar requisição
+      console.error('API Error: Erro na configuração da requisição', error.message);
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 // Função de login
 export const login = async (username, password, userType) => {

@@ -14,7 +14,7 @@ app.use('/uploads', express.static('uploads'));
 
 // configuração do CORS
 const corsOptions = {
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:5000'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5000'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -884,40 +884,32 @@ app.post('/posts', upload.single('imagem'), async (req, res) => {
 
 // Busca todas as publicações
 app.get('/posts', async (req, res) => {
-  try {    
-    // Primeiro, verifica se a tabela posts existe
+  try {
+    // Verifica se a tabela posts existe
     const [tables] = await pool.query(`
       SELECT table_name 
       FROM information_schema.tables 
       WHERE table_schema = 'level_all' 
         AND table_name = 'posts'
     `);
-    
     if (tables.length === 0) {
-      // Se a tabela não existir, retorna um array vazio
-      console.log('A tabela posts não existe no banco de dados');
       return res.json([]);
     }
-    
-    // Se a tabela existir, busca os posts
-    const [rows] = await pool.query(
-      'SELECT * FROM posts ORDER BY created_at DESC'
-    );
-    
-    // Adicionar nome de usuário a cada post
-    const postsWithUsername = await Promise.all(rows.map(async (post) => {
-      const userInfo = await findUsername(post.user_id);
-      return { 
-        ...post, 
-        username: userInfo.username,
-        user: userInfo.nome
-      };
-    }));
-    
-    res.json(postsWithUsername);
+
+    // Busca os posts com nome e username do autor (gamer, developer ou investor)
+    const [rows] = await pool.query(`
+      SELECT p.*, 
+        COALESCE(g.nome, d.nome, i.nome) AS nome, 
+        COALESCE(g.username, d.username, i.username) AS username
+      FROM posts p
+      LEFT JOIN user_gamer g ON p.user_id = g.id
+      LEFT JOIN user_developer d ON p.user_id = d.id
+      LEFT JOIN user_investor i ON p.user_id = i.id
+      ORDER BY p.created_at DESC
+    `);
+    res.json(rows);
   } catch (error) {
     console.error('Erro ao buscar publicações:', error);
-    // Para evitar o erro 500, retornamos um array vazio em caso de erro
     res.json([]);
   }
 });
@@ -934,50 +926,6 @@ const testDatabaseConnection = async () => {
     return false;
   }
 };
-
-// Função auxiliar para buscar nome de usuário em diferentes tabelas
-async function findUsername(userId) {
-  try {
-    // Verificar na tabela user_gamer
-    const [gamerRows] = await pool.query('SELECT username, nome FROM user_gamer WHERE id = ?', [userId]);
-    if (gamerRows.length > 0) return { 
-      username: gamerRows[0].username, 
-      nome: gamerRows[0].nome 
-    };
-    
-    // Verificar na tabela user_developer
-    const [devRows] = await pool.query('SELECT username, nome FROM user_developer WHERE id = ?', [userId]);
-    if (devRows.length > 0) return { 
-      username: devRows[0].username, 
-      nome: devRows[0].nome 
-    };
-    
-    // Verificar na tabela user_investor
-    const [investorRows] = await pool.query('SELECT username, nome FROM user_investor WHERE id = ?', [userId]);
-    if (investorRows.length > 0) return { 
-      username: investorRows[0].username, 
-      nome: investorRows[0].nome 
-    };
-    
-    // Verificar na tabela user_admin
-    const [adminRows] = await pool.query('SELECT username, nome FROM user_admin WHERE id = ?', [userId]);
-    if (adminRows.length > 0) return { 
-      username: adminRows[0].username, 
-      nome: adminRows[0].nome 
-    };
-    
-    return { 
-      username: 'usuario_desconhecido', 
-      nome: 'Usuário Desconhecido' 
-    };
-  } catch (error) {
-    console.error('Erro ao buscar nome de usuário:', error);
-    return { 
-      username: 'usuario_desconhecido', 
-      nome: 'Usuário Desconhecido' 
-    };
-  }
-}
 
 // inicia o servidor com verificação de banco de dados
 const PORT = process.env.PORT || 3000;
@@ -1244,33 +1192,6 @@ app.get('/posts/community', verificarToken, async (req, res) => {
   } catch (error) {
     console.error('Erro ao listar posts das comunidades:', error);
     res.status(500).json({ error: 'Erro ao listar posts das comunidades' });
-  }
-});
-
-// PUT - Editar um post
-app.put('/posts/:id', verificarToken, async (req, res) => {
-  const { id } = req.params;
-  const { texto } = req.body;
-  const userId = req.usuario.id;
-
-  try {
-    // Verificar se o post existe e pertence ao usuário
-    const [postRows] = await pool.query('SELECT * FROM posts WHERE id = ? AND user_id = ?', [id, userId]);
-    
-    if (postRows.length === 0) {
-      return res.status(404).json({ error: 'Post não encontrado ou você não tem permissão para editá-lo' });
-    }
-    
-    // Atualizar o post
-    await pool.query('UPDATE posts SET texto = ? WHERE id = ?', [texto, id]);
-    
-    // Retornar o post atualizado
-    const [updatedPost] = await pool.query('SELECT * FROM posts WHERE id = ?', [id]);
-    
-    res.json(updatedPost[0]);
-  } catch (error) {
-    console.error('Erro ao atualizar post:', error);
-    res.status(500).json({ error: 'Erro ao atualizar post' });
   }
 });
 

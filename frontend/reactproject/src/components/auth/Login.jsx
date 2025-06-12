@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { login, API_URL } from '../../config/api';
+import { login } from '../../config/api';
 import { useAuth } from '../../context/AuthContext';
 
 const Login = () => {
@@ -38,7 +38,7 @@ const Login = () => {
         const timeoutId = setTimeout(() => controller.abort(), 3000);
         
         // Primeiro tenta a rota de saúde mais leve
-        const healthResponse = await fetch(`${API_URL}/health`, {
+        const healthResponse = await fetch('http://localhost:3000/health', {
           signal: controller.signal
         });
         
@@ -50,7 +50,7 @@ const Login = () => {
           const dbController = new AbortController();
           const dbTimeoutId = setTimeout(() => dbController.abort(), 3000);
           
-          const dbResponse = await fetch(`${API_URL}/test-db`, {
+          const dbResponse = await fetch('http://localhost:3000/test-db', {
             signal: dbController.signal
           });
           
