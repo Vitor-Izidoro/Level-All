@@ -62,6 +62,7 @@ function LandingPage() {
       )
       .map(item => ({
         name: item.text,
+        id: item.id, // Adiciona o id do post
         type: "feed"
       }));
 
@@ -72,11 +73,10 @@ function LandingPage() {
     if (suggestion.path) {
       setSearch("");
       navigate(suggestion.path);
-    } else if (suggestion.type === "feed") {
-      // Scroll até o post correspondente
+    } else if (suggestion.type === "feed" && suggestion.id) {
       setSearch("");
       setTimeout(() => {
-        const postElement = document.querySelector(`[data-feed-text='${suggestion.name.replace(/'/g, "\\'")}'`);
+        const postElement = document.querySelector(`[data-feed-id='${suggestion.id}']`);
         if (postElement) {
           postElement.scrollIntoView({ behavior: "smooth", block: "center" });
           postElement.classList.add("highlighted-post");
@@ -287,7 +287,13 @@ function LandingPage() {
       part.toLowerCase() === term.toLowerCase() ? <mark key={i}>{part}</mark> : part
     );
   }
-
+const filteredFeed = search
+    ? feed.filter(item =>
+        (item.text && item.text.toLowerCase().includes(search.toLowerCase())) ||
+        (item.username && item.username.toLowerCase().includes(search.toLowerCase())) ||
+        (item.nome && item.nome.toLowerCase().includes(search.toLowerCase()))
+      )
+    : feed;
   return (
     <div className="landing-root">
       <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
@@ -444,8 +450,8 @@ function LandingPage() {
             </div>
           )}
           <section className="feed-section">
-            {feed.map((item, idx) => (
-              <div className="feed-card" key={idx} data-feed-text={item.text}>
+            {filteredFeed.map((item, idx) => (
+              <div className="feed-card" key={idx} data-feed-id={item.id}>
                 <div className="feed-header">
                   <div className="feed-user-group">
                     <div className="avatar"></div>
