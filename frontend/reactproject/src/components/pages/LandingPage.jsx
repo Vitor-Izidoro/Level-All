@@ -5,6 +5,8 @@ import logo_site from '../../assets/logos/002.png';
 import SidebarToggle from '../shared/SidebarToggle';
 import Sidebar from "../shared/Sidebar";
 import { useAuth } from "../../context/AuthContext"
+import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +22,8 @@ function LandingPage() {
   const [suggestions, setSuggestions] = useState([]);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [activePostOptions, setActivePostOptions] = useState(null);
+  const [isEditing, setIsEditing] = useState(false); // Estado para controlar se está editando
+  const [editingPostId, setEditingPostId] = useState(null); // ID do post sendo editado
   const { autenticado, usuario } = useAuth();
   const navigate = useNavigate();
 
@@ -31,6 +35,14 @@ function LandingPage() {
     { name: "Perfil", path: "/perfil" },
     { name: "Página Inicial", path: "/" }
   ];
+  const handleEditPost = (idx) => {
+    const postToEdit = feed[idx];
+    setPostText(postToEdit.text);
+    setEditingPostId(postToEdit.id);
+    setIsEditing(true);
+    setIsModalOpen(true);
+    console.log("Editando post:", postToEdit);
+  };
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -88,41 +100,78 @@ function LandingPage() {
     e.preventDefault();
     if (postText.trim() === "") return;
 
-    // Envie para o backend normalmente...
+    if (isEditing && editingPostId) {
+      // Caso de edição de post existente
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/posts/${editingPostId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ texto: postText })
+        });
 
-    // Adicione ao feed local com o usuário logado
-    setFeed([
-      {
-        user: usuario?.nome || "Usuário",
-        username: usuario?.username,
-        userId: usuario?.id,
-        handle: `@${usuario?.username || "voce"}`,
-        text: postText,
-        hashtags: "",
-        image: postImage ? postImage : null
-      },
-      ...feed
-    ]);
-    setPostText("");
-    setPostImage("");
-    setIsModalOpen(false);
-  };
-  const fetchFeed = async () => {
+        if (response.ok) {
+          const updatedPost = await response.json();
+          
+          // Atualizar o post no feed local
+          const updatedFeed = feed.map(post => 
+            post.id === editingPostId 
+              ? { ...post, text: postText } 
+              : post
+          );
+          
+          setFeed(updatedFeed);
+          setPostText("");
+          setIsModalOpen(false);
+          setIsEditing(false);
+          setEditingPostId(null);
+        } else {
+          console.error('Erro ao atualizar post:', await response.json());
+        }
+      } catch (error) {
+        console.error('Erro ao editar post:', error);
+      }
+    } else {
+      // Caso de criação de novo post
+      // Envie para o backend normalmente...
+
+      // Adicione ao feed local com o usuário logado
+      setFeed([
+        {
+          user: usuario?.nome || "Usuário",
+          username: usuario?.username,
+          userId: usuario?.id,
+          handle: `@${usuario?.username || "voce"}`,
+          text: postText,
+          hashtags: "",
+          image: postImage ? postImage : null
+        },
+        ...feed
+      ]);
+      setPostText("");
+      setPostImage("");
+      setIsModalOpen(false);
+    }
+  };  const fetchFeed = async () => {
     try {
-      const res = await fetch('/api/posts');
+      const res = await fetch(`${API_URL}/posts`);
       const posts = await res.json();
       
       // Verificar se posts é um array antes de chamar .map()
       if (Array.isArray(posts)) {
         setFeed(posts.map(post => ({
-          user: post.user || "Usuário",
+          id: post.id, // Importante adicionar o ID do post para edição
+          user: post.user || post.nome || "Usuário",
           username: post.username,
-          userId: post.userId,
+          userId: post.user_id,
           handle: post.handle || (post.username ? `@${post.username}` : "@usuario"),
           text: post.texto || post.text || "",
           hashtags: post.hashtags || "",
           image: post.imagem
-            ? `http://localhost:3000/uploads/${post.imagem}`
+            ? `/uploads/${post.imagem}`
             : post.image || null
         })));
       } else {
@@ -135,15 +184,49 @@ function LandingPage() {
       setFeed([]);
     }
   };
-
   useEffect(() => {
-    fetch('/api/posts')
-      .then(res => res.json())
-      .then(data => setFeed(data));
+    fetchFeed();
   }, []);
 
   const handleDeletePost = (idx) => {
     setFeed(feed => feed.filter((_, i) => i !== idx));
+  };
+
+  const handleCreatePost = async () => {
+    if (postText.trim() === "") return;
+
+    try {
+      const formData = new FormData();
+      formData.append('texto', postText);
+      formData.append('user_id', usuario?.id);
+      
+      if (imagem) {
+        formData.append('imagem', imagem);
+      }      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/posts`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const newPost = await response.json();
+        // Adicionar o novo post ao início do feed
+        fetchFeed(); // Outra opção seria construir o post localmente e adicioná-lo ao estado
+        
+        // Limpar o formulário
+        setPostText("");
+        setPostImage("");
+        setImagem(null);
+        setIsModalOpen(false);
+      } else {
+        console.error('Erro ao criar post:', await response.json());
+      }
+    } catch (error) {
+      console.error('Erro ao criar post:', error);
+    }
   };
 
   return (
@@ -225,174 +308,78 @@ function LandingPage() {
         </div>
         
           {isModalOpen && (
-  <div
-    className="modal-overlay"
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.4)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 1000,
-      padding: 16,
-    }}
-  >
-    <div
-      className="modal-content"
-      style={{
-        background: "#3a3341",
-        borderRadius: 12,
-        padding: 24,
-        width: "100%",
-        maxWidth: 400,
-        boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-        boxSizing: "border-box",
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title"
-    >
-      <h2 id="modal-title" style={{ color: "white", marginBottom: 20, fontWeight: 600 }}>
-        Publicar no Feed
-      </h2>
-
-      <form onSubmit={handleSubmit}>
-        <textarea
-          value={postText}
-          onChange={(e) => setPostText(e.target.value)}
-          placeholder="Digite sua mensagem..."
-          rows={5}
-          style={{
-            width: "90%",
-            padding: "14px 18px",
-            marginBottom: 24,
-            fontSize: 16,
-            borderRadius: 14,
-            border: "1.5px solid #ddd",
-            boxShadow: "inset 0 2px 5px rgb(0 0 0 / 0.05)",
-            resize: "vertical",
-            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-            color: "white",
-            outline: "none",
-            transition: "border-color 0.3s ease, box-shadow 0.3s ease",
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = "#5a4a6b";
-            e.target.style.boxShadow = "0 0 8px #5a4a6baa";
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = "#ddd";
-            e.target.style.boxShadow = "inset 0 2px 5px rgb(0 0 0 / 0.05)";
-          }}
-          autoFocus
-        />
-
-        <label
-          htmlFor="fileInput"
-          style={{
-            display: "block",
-            marginBottom: 12,
-            fontWeight: 600,
-            color: "white",
-            cursor: "pointer",
-            userSelect: "none",
-          }}
-        >
-          Imagem (opcional)
-        </label>
-        <input
-          id="fileInput"
-          type="file"
-          accept="image/*"
-          style={{
-            display: "block",
-            marginBottom: 20,
-            cursor: "pointer",
-          }}
-          onChange={(e) => {
-            const file = e.target.files[0];
-            if (file && file.type.startsWith("image/")) {
+            <div className="modal-overlay">              <div className="modal-content" style={{ maxWidth: 380, minWidth: 0, width: "100%" }}>
+                <h2 style={{ color: "#555"}}>{isEditing ? "Editar Publicação" : "Publicar no Feed"}</h2>
+                <form onSubmit={handleSubmit}>
+            <textarea
+              value={postText}
+              onChange={e => setPostText(e.target.value)}
+              placeholder="Digite sua mensagem..."
+              rows={4}
+              style={{ width: "100%", marginBottom: 12, color: "black"}}                 />
+            <div
+              className="dropzone"
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith("image/")) {
+                  setImagem(file);
+                  const reader = new FileReader();
+                  reader.onload = ev => setPostImage(ev.target.result);
+                  reader.readAsDataURL(file);
+                }
+              }}
+              onClick={() => document.getElementById("fileInput").click()}
+            >
+              {postImage ? (
+                <img src={postImage} alt="Preview" className="feed-image" style={{ maxHeight: 180, margin: 8}} />
+              ) : (
+                <span style={{ color: "#555"}}>
+                  Arraste uma imagem{" "}
+                  <span style={{ color: "#1976d2", textDecoration: "underline", cursor: "pointer" }}>
+              aqui
+                  </span>{" "}
+                  ou clique para selecionar
+                </span>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={e => {
+                  const file = e.target.files[0];
+                  if (file && file.type.startsWith("image/")) {
               setImagem(file);
               const reader = new FileReader();
               reader.onload = (ev) => setPostImage(ev.target.result);
               reader.readAsDataURL(file);
-            }
-          }}
-        />
-
-        {postImage && (
-          <img
-            src={postImage}
-            alt="Preview da imagem"
-            style={{
-              maxWidth: "100%",
-              maxHeight: 200,
-              objectFit: "contain",
-              borderRadius: 12,
-              marginBottom: 24,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-            }}
-          />
-        )}
-
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 14 }}>
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(false)}
-            className="goto-users-btn"
-            style={{
-              backgroundColor: "#ccc",
-              color: "#333",
-              border: "none",
-              padding: "10px 18px",
-              borderRadius: 10,
-              cursor: "pointer",
-              fontWeight: "600",
-              fontSize: 15,
-              transition: "background-color 0.25s",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#b3b3b3")}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ccc")}
-          >
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            className="goto-users-btn"
-            style={{
-              backgroundColor: "#5a4a6b",
-              color: "#fff",
-              border: "none",
-              padding: "10px 18px",
-              borderRadius: 10,
-              cursor: postText.trim() ? "pointer" : "not-allowed",
-              fontWeight: "600",
-              fontSize: 15,
-              transition: "background-color 0.25s",
-              opacity: postText.trim() ? 1 : 0.5,
-            }}
-            disabled={!postText.trim()}
-            title={!postText.trim() ? "Digite algo para publicar" : ""}
-            onMouseEnter={(e) => {
-              if (postText.trim()) e.currentTarget.style.backgroundColor = "#47385a";
-            }}
-            onMouseLeave={(e) => {
-              if (postText.trim()) e.currentTarget.style.backgroundColor = "#5a4a6b";
-            }}
-          >
-            Publicar
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
-
+                  }
+                }}
+                id="fileInput"
+              />
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>              <button 
+                type="button" 
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setIsEditing(false);
+                  setEditingPostId(null);
+                  setPostText("");
+                }} 
+                className="goto-users-btn" 
+                style={{ background: "#ccc", color: "#333" }}
+              >
+                Cancelar
+              </button>
+              <button type="submit" className="goto-users-btn">
+                {isEditing ? "Salvar" : "Publicar"}
+              </button>
+            </div>
+                </form>
+              </div>
+            </div>
+          )}
           <section className="feed-section">
             {feed.map((item, idx) => (
               <div className="feed-card" key={idx}>
@@ -712,4 +699,3 @@ function LandingPage() {
 }
 
 export default LandingPage;
-
