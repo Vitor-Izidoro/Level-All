@@ -914,6 +914,28 @@ app.get('/posts', async (req, res) => {
   }
 });
 
+// ROTA PARA EDITAR UM POST
+app.put('/posts/:id', async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const { texto } = req.body;
+    if (!texto) {
+      return res.status(400).json({ error: 'Texto é obrigatório' });
+    }
+    const [result] = await pool.query(
+      'UPDATE posts SET texto = ? WHERE id = ?',
+      [texto, postId]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Post não encontrado' });
+    }
+    res.json({ id: postId, texto });
+  } catch (error) {
+    console.error('Erro ao editar post:', error);
+    res.status(500).json({ error: 'Erro ao editar post' });
+  }
+});
+
 // Função para testar a conexão com o banco de dados
 const testDatabaseConnection = async () => {
   try {
