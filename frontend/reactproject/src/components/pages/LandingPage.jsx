@@ -7,6 +7,8 @@ import ProfileMenu from '../perfil/ProfileMenu';
 import SidebarToggle from '../shared/SidebarToggle';
 import Sidebar from "../shared/Sidebar";
 import { useAuth } from "../../context/AuthContext"
+import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,6 +24,8 @@ function LandingPage() {
   const [suggestions, setSuggestions] = useState([]);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [activePostOptions, setActivePostOptions] = useState(null);
+  const [isEditing, setIsEditing] = useState(false); // Estado para controlar se está editando
+  const [editingPostId, setEditingPostId] = useState(null); // ID do post sendo editado
   const { autenticado, usuario } = useAuth();
   const navigate = useNavigate();
 
@@ -33,11 +37,14 @@ function LandingPage() {
     { name: "Perfil", path: "/perfil" },
     { name: "Página Inicial", path: "/" }
   ];
-
   const handleEditPost = (idx) => {
-  console.log("Editar post:", idx);
-  // Aqui você pode abrir um modal, ativar um estado de edição, etc.
-};
+    const postToEdit = feed[idx];
+    setPostText(postToEdit.text);
+    setEditingPostId(postToEdit.id);
+    setIsEditing(true);
+    setIsModalOpen(true);
+    console.log("Editando post:", postToEdit);
+  };
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -90,46 +97,82 @@ function LandingPage() {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (postText.trim() === "") return;
 
-    // Envie para o backend normalmente...
+    if (isEditing && editingPostId) {
+      // Caso de edição de post existente
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/posts/${editingPostId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ texto: postText })
+        });
 
-    // Adicione ao feed local com o usuário logado
-    setFeed([
-      {
-        user: usuario?.nome || "Usuário",
-        username: usuario?.username,
-        userId: usuario?.id,
-        handle: `@${usuario?.username || "voce"}`,
-        text: postText,
-        hashtags: "",
-        image: postImage ? postImage : null
-      },
-      ...feed
-    ]);
-    setPostText("");
-    setPostImage("");
-    setIsModalOpen(false);
-  };
-  const fetchFeed = async () => {
+        if (response.ok) {
+          const updatedPost = await response.json();
+          
+          // Atualizar o post no feed local
+          const updatedFeed = feed.map(post => 
+            post.id === editingPostId 
+              ? { ...post, text: postText } 
+              : post
+          );
+          
+          setFeed(updatedFeed);
+          setPostText("");
+          setIsModalOpen(false);
+          setIsEditing(false);
+          setEditingPostId(null);
+        } else {
+          console.error('Erro ao atualizar post:', await response.json());
+        }
+      } catch (error) {
+        console.error('Erro ao editar post:', error);
+      }
+    } else {
+      // Caso de criação de novo post
+      // Envie para o backend normalmente...
+
+      // Adicione ao feed local com o usuário logado
+      setFeed([
+        {
+          user: usuario?.nome || "Usuário",
+          username: usuario?.username,
+          userId: usuario?.id,
+          handle: `@${usuario?.username || "voce"}`,
+          text: postText,
+          hashtags: "",
+          image: postImage ? postImage : null
+        },
+        ...feed
+      ]);
+      setPostText("");
+      setPostImage("");
+      setIsModalOpen(false);
+    }
+  };  const fetchFeed = async () => {
     try {
-      const res = await fetch('/api/posts');
+      const res = await fetch(`${API_URL}/posts`);
       const posts = await res.json();
       
       // Verificar se posts é um array antes de chamar .map()
       if (Array.isArray(posts)) {
         setFeed(posts.map(post => ({
-          user: post.user || "Usuário",
+          id: post.id, // Importante adicionar o ID do post para edição
+          user: post.user || post.nome || "Usuário",
           username: post.username,
-          userId: post.userId,
+          userId: post.user_id,
           handle: post.handle || (post.username ? `@${post.username}` : "@usuario"),
           text: post.texto || post.text || "",
           hashtags: post.hashtags || "",
           image: post.imagem
-            ? `http://localhost:3000/uploads/${post.imagem}`
+            ? `/uploads/${post.imagem}`
             : post.image || null
         })));
       } else {
@@ -142,15 +185,49 @@ function LandingPage() {
       setFeed([]);
     }
   };
-
   useEffect(() => {
-    fetch('/api/posts')
-      .then(res => res.json())
-      .then(data => setFeed(data));
+    fetchFeed();
   }, []);
 
   const handleDeletePost = (idx) => {
     setFeed(feed => feed.filter((_, i) => i !== idx));
+  };
+
+  const handleCreatePost = async () => {
+    if (postText.trim() === "") return;
+
+    try {
+      const formData = new FormData();
+      formData.append('texto', postText);
+      formData.append('user_id', usuario?.id);
+      
+      if (imagem) {
+        formData.append('imagem', imagem);
+      }      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/posts`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const newPost = await response.json();
+        // Adicionar o novo post ao início do feed
+        fetchFeed(); // Outra opção seria construir o post localmente e adicioná-lo ao estado
+        
+        // Limpar o formulário
+        setPostText("");
+        setPostImage("");
+        setImagem(null);
+        setIsModalOpen(false);
+      } else {
+        console.error('Erro ao criar post:', await response.json());
+      }
+    } catch (error) {
+      console.error('Erro ao criar post:', error);
+    }
   };
 
   return (
@@ -232,9 +309,8 @@ function LandingPage() {
         </div>
         
           {isModalOpen && (
-            <div className="modal-overlay">
-              <div className="modal-content" style={{ maxWidth: 380, minWidth: 0, width: "100%" }}>
-                <h2 style={{ color: "#555"}}>Publicar no Feed</h2>
+            <div className="modal-overlay">              <div className="modal-content" style={{ maxWidth: 380, minWidth: 0, width: "100%" }}>
+                <h2 style={{ color: "#555"}}>{isEditing ? "Editar Publicação" : "Publicar no Feed"}</h2>
                 <form onSubmit={handleSubmit}>
             <textarea
               value={postText}
@@ -284,12 +360,21 @@ function LandingPage() {
                 id="fileInput"
               />
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-              <button type="button" onClick={() => setIsModalOpen(false)} className="goto-users-btn" style={{ background: "#ccc", color: "#333" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>              <button 
+                type="button" 
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setIsEditing(false);
+                  setEditingPostId(null);
+                  setPostText("");
+                }} 
+                className="goto-users-btn" 
+                style={{ background: "#ccc", color: "#333" }}
+              >
                 Cancelar
               </button>
               <button type="submit" className="goto-users-btn">
-                Publicar
+                {isEditing ? "Salvar" : "Publicar"}
               </button>
             </div>
                 </form>
