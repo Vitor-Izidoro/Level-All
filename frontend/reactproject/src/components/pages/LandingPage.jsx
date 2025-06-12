@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../index.css";
-import Icon from "../../assets/icons/icons";
 import logo_site from '../../assets/logos/002.png';
-import ProfileMenu from '../perfil/ProfileMenu';
 import SidebarToggle from '../shared/SidebarToggle';
 import Sidebar from "../shared/Sidebar";
 import { useAuth } from "../../context/AuthContext"
@@ -33,11 +31,6 @@ function LandingPage() {
     { name: "Perfil", path: "/perfil" },
     { name: "Página Inicial", path: "/" }
   ];
-
-  const handleEditPost = (idx) => {
-  console.log("Editar post:", idx);
-  // Aqui você pode abrir um modal, ativar um estado de edição, etc.
-};
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -425,8 +418,8 @@ function LandingPage() {
                       </button>
                       {activePostOptions === idx && (
                         <div className="post-options-menu">
-                          <button onClick={() => handleEditPost(idx)}>Editar</button>
-                          <button onClick={() => handleDeletePost(idx)}>Excluir</button>
+                          <button>Editar</button>
+                          <button>Excluir</button>
                         </div>
                       )}
                     </div>
