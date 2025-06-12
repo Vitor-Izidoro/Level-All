@@ -33,11 +33,11 @@ export const AuthProvider = ({ children }) => {
           
           const userData = JSON.parse(userDataString);
           
-          if (!userData || !userData.username) {
+          if (!userData || !userData.username || !userData.id) {
             throw new Error('Dados do usuário inválidos');
           }
           
-          console.log('Usuário autenticado:', userData.username);
+          console.log('Usuário autenticado:', userData.username, 'ID:', userData.id);
           setUsuario(userData);
           setAutenticado(true);
         } catch (error) {
