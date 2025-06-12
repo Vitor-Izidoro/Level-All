@@ -232,70 +232,174 @@ function LandingPage() {
         </div>
         
           {isModalOpen && (
-            <div className="modal-overlay">
-              <div className="modal-content" style={{ maxWidth: 380, minWidth: 0, width: "100%" }}>
-                <h2 style={{ color: "#555"}}>Publicar no Feed</h2>
-                <form onSubmit={handleSubmit}>
-            <textarea
-              value={postText}
-              onChange={e => setPostText(e.target.value)}
-              placeholder="Digite sua mensagem..."
-              rows={4}
-              style={{ width: "100%", marginBottom: 12, color: "black"}}                 />
-            <div
-              className="dropzone"
-              onDragOver={e => e.preventDefault()}
-              onDrop={e => {
-                e.preventDefault();
-                const file = e.dataTransfer.files[0];
-                if (file && file.type.startsWith("image/")) {
-                  setImagem(file);
-                  const reader = new FileReader();
-                  reader.onload = ev => setPostImage(ev.target.result);
-                  reader.readAsDataURL(file);
-                }
-              }}
-              onClick={() => document.getElementById("fileInput").click()}
-            >
-              {postImage ? (
-                <img src={postImage} alt="Preview" className="feed-image" style={{ maxHeight: 180, margin: 8}} />
-              ) : (
-                <span style={{ color: "#555"}}>
-                  Arraste uma imagem{" "}
-                  <span style={{ color: "#1976d2", textDecoration: "underline", cursor: "pointer" }}>
-              aqui
-                  </span>{" "}
-                  ou clique para selecionar
-                </span>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={e => {
-                  const file = e.target.files[0];
-                  if (file && file.type.startsWith("image/")) {
+  <div
+    className="modal-overlay"
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: "rgba(0,0,0,0.4)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      zIndex: 1000,
+      padding: 16,
+    }}
+  >
+    <div
+      className="modal-content"
+      style={{
+        background: "#3a3341",
+        borderRadius: 12,
+        padding: 24,
+        width: "100%",
+        maxWidth: 400,
+        boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+        boxSizing: "border-box",
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <h2 id="modal-title" style={{ color: "white", marginBottom: 20, fontWeight: 600 }}>
+        Publicar no Feed
+      </h2>
+
+      <form onSubmit={handleSubmit}>
+        <textarea
+          value={postText}
+          onChange={(e) => setPostText(e.target.value)}
+          placeholder="Digite sua mensagem..."
+          rows={5}
+          style={{
+            width: "90%",
+            padding: "14px 18px",
+            marginBottom: 24,
+            fontSize: 16,
+            borderRadius: 14,
+            border: "1.5px solid #ddd",
+            boxShadow: "inset 0 2px 5px rgb(0 0 0 / 0.05)",
+            resize: "vertical",
+            fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+            color: "white",
+            outline: "none",
+            transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = "#5a4a6b";
+            e.target.style.boxShadow = "0 0 8px #5a4a6baa";
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = "#ddd";
+            e.target.style.boxShadow = "inset 0 2px 5px rgb(0 0 0 / 0.05)";
+          }}
+          autoFocus
+        />
+
+        <label
+          htmlFor="fileInput"
+          style={{
+            display: "block",
+            marginBottom: 12,
+            fontWeight: 600,
+            color: "white",
+            cursor: "pointer",
+            userSelect: "none",
+          }}
+        >
+          Imagem (opcional)
+        </label>
+        <input
+          id="fileInput"
+          type="file"
+          accept="image/*"
+          style={{
+            display: "block",
+            marginBottom: 20,
+            cursor: "pointer",
+          }}
+          onChange={(e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith("image/")) {
               setImagem(file);
               const reader = new FileReader();
-              reader.onload = ev => setPostImage(ev.target.result);
+              reader.onload = (ev) => setPostImage(ev.target.result);
               reader.readAsDataURL(file);
-                  }
-                }}
-                id="fileInput"
-              />
-            </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-              <button type="button" onClick={() => setIsModalOpen(false)} className="goto-users-btn" style={{ background: "#ccc", color: "#333" }}>
-                Cancelar
-              </button>
-              <button type="submit" className="goto-users-btn">
-                Publicar
-              </button>
-            </div>
-                </form>
-              </div>
-            </div>
-          )}
+            }
+          }}
+        />
+
+        {postImage && (
+          <img
+            src={postImage}
+            alt="Preview da imagem"
+            style={{
+              maxWidth: "100%",
+              maxHeight: 200,
+              objectFit: "contain",
+              borderRadius: 12,
+              marginBottom: 24,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+            }}
+          />
+        )}
+
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 14 }}>
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            className="goto-users-btn"
+            style={{
+              backgroundColor: "#ccc",
+              color: "#333",
+              border: "none",
+              padding: "10px 18px",
+              borderRadius: 10,
+              cursor: "pointer",
+              fontWeight: "600",
+              fontSize: 15,
+              transition: "background-color 0.25s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#b3b3b3")}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#ccc")}
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            className="goto-users-btn"
+            style={{
+              backgroundColor: "#5a4a6b",
+              color: "#fff",
+              border: "none",
+              padding: "10px 18px",
+              borderRadius: 10,
+              cursor: postText.trim() ? "pointer" : "not-allowed",
+              fontWeight: "600",
+              fontSize: 15,
+              transition: "background-color 0.25s",
+              opacity: postText.trim() ? 1 : 0.5,
+            }}
+            disabled={!postText.trim()}
+            title={!postText.trim() ? "Digite algo para publicar" : ""}
+            onMouseEnter={(e) => {
+              if (postText.trim()) e.currentTarget.style.backgroundColor = "#47385a";
+            }}
+            onMouseLeave={(e) => {
+              if (postText.trim()) e.currentTarget.style.backgroundColor = "#5a4a6b";
+            }}
+          >
+            Publicar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
           <section className="feed-section">
             {feed.map((item, idx) => (
               <div className="feed-card" key={idx}>

@@ -22,19 +22,19 @@ body, html, #root {
   left: 0;
   height: 100vh;
   width: 220px;
-  background: #3a3341;
+  background-color: #3a3341;  /* Use background-color ao invés de background */
   color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 24px 0;
   z-index: 100;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease; /* para transição suave */
 }
 
 .sidebar.closed {
-  transform: translateX(-100%); /* Esconde a sidebar */
-  background-color: #312936;
+  transform: translateX(-100%);
+  background-color: #312936 !important;
 }
 
 /* Responsividade para a sidebar */

@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
 
 const ContactList = ({ contacts, selectedContact, onSelectContact, onAddContact }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [newContactName, setNewContactName] = useState('');
-  const { autenticado, usuario } = useAuth();
 
   // Corrigido: filtro para a lista principal
   const filteredContacts = contacts.filter(contact =>
@@ -24,21 +22,6 @@ const ContactList = ({ contacts, selectedContact, onSelectContact, onAddContact 
       setShowModal(false);
     }
   };
-
-  const contactsWithLastMessage = contacts.map(contact => {
-    const msgs = messages.filter(
-      m =>
-        (m.senderId === usuario.id && m.receiverId === contact.id) ||
-        (m.senderId === contact.id && m.receiverId === usuario.id)
-    );
-
-    const lastMsg = msgs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-
-    return {
-      ...contact,
-      lastMessage: lastMsg ? lastMsg.text : null,
-    };
-  });
 
   return (
     <div className="contacts">
@@ -91,9 +74,6 @@ const ContactList = ({ contacts, selectedContact, onSelectContact, onAddContact 
               </div>
               <div className="contact-info">
                 <div className="contact-name">{contact.username}</div>
-                <div className="contact-last-msg">
-                  {contact.lastMessage ? contact.lastMessage : 'Sem mensagens'}
-                </div>
               </div>
             </div>
           ))

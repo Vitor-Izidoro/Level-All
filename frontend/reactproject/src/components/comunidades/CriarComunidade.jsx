@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SidebarToggle from '../shared/SidebarToggle';
+import Sidebar from "../shared/Sidebar";
 
 function CriarComunidade() {
   const navigate = useNavigate();
@@ -95,50 +96,28 @@ function CriarComunidade() {
 
   return (
     <div className="landing-root">
-      <aside className={`sidebar${sidebarOpen ? '' : ' closed'}`}>
-        <div className="sidebar-header">
-          <div className="logo-circle">
-            <img src="/logo.jpeg" alt="Logo Level All" className="logo-img" />
-          </div>
-          <span className="sidebar-title">LEVEL ALL</span>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li><a href="/" className="sidebar-btn animated">🏠 Página Inicial</a></li>
-            <li><a href="/comunidades" className="sidebar-btn animated">👥 Comunidades</a></li>
-            <li><a href="/tags" className="sidebar-btn animated">🏷️ Suas tags</a></li>
-            <li><a href="/mensagens" className="sidebar-btn animated">💬 Mensagens</a></li>
-            <li><a href="/notificacoes" className="sidebar-btn animated">🔔 Notificações</a></li>
-            <li><a href="/perfil" className="sidebar-btn animated">👤 Perfil</a></li>
-          </ul>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="sidebar-btn animated">⚙️ Configurações</button>
-        </div>
-      </aside>
+      <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
       <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
       <main className={`main-content ${!sidebarOpen ? 'sidebar-closed' : ''}`}>
-        <header className="main-header">
-          <input className="search-bar" placeholder="Pesquisar..." />
-        </header>
+        
         <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: 40 }}>
           <div style={{
-            maxWidth: '600px',
+            width: '30%',
             padding: '30px',
-            backgroundColor: '#fff',
+            backgroundColor: "#3a3341",
             borderRadius: '8px',
             boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
             border: '1px solid #ddd'
           }}>
-            <h2 style={{ fontSize: '24px', marginBottom: '20px', color: '#333', textAlign: 'center' }}>
+            <h2 style={{ fontSize: '24px', marginBottom: '20px', color: 'white', textAlign: 'center' }}>
               Criar Nova Comunidade
             </h2>
             <form onSubmit={handleSubmit}>
               {/* Nome da comunidade */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: 'white' }}>
                   Nome da Comunidade*:
                 </label>
                 <input
@@ -148,7 +127,7 @@ function CriarComunidade() {
                   onChange={handleInputChange}
                   required
                   style={{
-                    width: '100%',
+                    width: '97%',
                     padding: '10px',
                     borderRadius: '4px',
                     border: '1px solid #ccc',
@@ -159,7 +138,7 @@ function CriarComunidade() {
 
               {/* Descrição */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: 'white' }}>
                   Descrição*:
                 </label>
                 <textarea
@@ -169,7 +148,7 @@ function CriarComunidade() {
                   required
                   rows="4"
                   style={{
-                    width: '100%',
+                    width: '97%',
                     padding: '10px',
                     borderRadius: '4px',
                     border: '1px solid #ccc',
@@ -181,7 +160,7 @@ function CriarComunidade() {
 
               {/* Tags */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: 'white' }}>
                   Tags (separadas por vírgula):
                 </label>
                 <input
@@ -191,7 +170,7 @@ function CriarComunidade() {
                   onChange={handleInputChange}
                   placeholder="Ex: jogos, RPG, estratégia"
                   style={{
-                    width: '100%',
+                    width: '97%',
                     padding: '10px',
                     borderRadius: '4px',
                     border: '1px solid #ccc',
@@ -202,7 +181,7 @@ function CriarComunidade() {
 
               {/* Banner */}
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: 'white' }}>
                   Banner da Comunidade:
                 </label>
                 <input
@@ -211,7 +190,7 @@ function CriarComunidade() {
                   accept="image/*"
                   onChange={handleFileChange}
                   style={{
-                    width: '100%',
+                    width: '97%',
                     padding: '10px',
                     borderRadius: '4px',
                     border: '1px solid #ccc',
@@ -230,7 +209,7 @@ function CriarComunidade() {
                     onChange={handleInputChange}
                     style={{ width: '18px', height: '18px' }}
                   />
-                  <span style={{ fontWeight: '500', color: '#333' }}>
+                  <span style={{ fontWeight: '500', color: 'white' }}>
                     Esta comunidade será monetizada
                   </span>
                 </label>
