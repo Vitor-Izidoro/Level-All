@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const ContactList = ({ contacts, selectedContact, onSelectContact, onAddContact }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [newContactName, setNewContactName] = useState('');
+  const { autenticado, usuario } = useAuth();
 
   // Corrigido: filtro para a lista principal
   const filteredContacts = contacts.filter(contact =>
@@ -23,25 +25,44 @@ const ContactList = ({ contacts, selectedContact, onSelectContact, onAddContact 
     }
   };
 
+  const contactsWithLastMessage = contacts.map(contact => {
+    const msgs = messages.filter(
+      m =>
+        (m.senderId === usuario.id && m.receiverId === contact.id) ||
+        (m.senderId === contact.id && m.receiverId === usuario.id)
+    );
+
+    const lastMsg = msgs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+    return {
+      ...contact,
+      lastMessage: lastMsg ? lastMsg.text : null,
+    };
+  });
+
   return (
     <div className="contacts">
       <div className="contacts-header">
         <h1>Conversas</h1>
         <button
           style={{
-            margin: '12px',
-            padding: '8px 12px',
-            borderRadius: '8px',
+            margin: '16px',
+            padding: '10px 15px',            // maior área clicável
+            borderRadius: '12px',            // cantos mais arredondados
             border: 'none',
             background: '#5a4a6b',
             color: '#fff',
-            fontWeight: 600,
-            cursor: 'pointer'
+            fontWeight: 500,                 // fonte mais forte
+            fontSize: '18px',                // fonte maior
+            cursor: 'pointer',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)', // leve sombra
+            transition: 'background 0.2s ease'
           }}
           onClick={() => onAddContact(true)}
         >
           + Novo Contato
         </button>
+
         <i className="fas fa-ellipsis-v"></i>
       </div>
 
@@ -70,7 +91,9 @@ const ContactList = ({ contacts, selectedContact, onSelectContact, onAddContact 
               </div>
               <div className="contact-info">
                 <div className="contact-name">{contact.username}</div>
-                <div className="contact-status">{contact.status || 'Online'}</div>
+                <div className="contact-last-msg">
+                  {contact.lastMessage ? contact.lastMessage : 'Sem mensagens'}
+                </div>
               </div>
             </div>
           ))

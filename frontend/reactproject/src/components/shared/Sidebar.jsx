@@ -1,68 +1,45 @@
 import React from "react";
-import { Link } from "react-router-dom";
-
-import Icon from "../../assets/icons/icons";// Ajuste o caminho se for diferente
+import { Link, useLocation } from "react-router-dom";
+import logo from '../../assets/logos/002.png';
+import Icon from "../../assets/icons/icons";
 
 export default function Sidebar({ sidebarOpen, toggleSidebar }) {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const menuItems = [
+    { to: "/", label: "Página Inicial", icon: "pagina" },
+    { to: "/comunidades", label: "Comunidades", icon: "comunidade" },
+    { to: "/tags", label: "Suas tags", icon: "tags" },
+    { to: "/mensagens", label: "Mensagens", icon: "mensagens" },
+    { to: "/notificacoes", label: "Notificações", icon: "notificacoes" },
+    { to: "/perfil", label: "Perfil", icon: "perfil" },
+  ];
+
   return (
     <>
       <aside className={`sidebar${sidebarOpen ? "" : " closed"}`}>
         <div className="sidebar-header">
-          <div className="logo-circle">
-            <img src="/logo.jpeg" alt="Logo Level All" className="logo-img" />
-          </div>
+          <img src={logo} alt="Logo Level All" className="logo-img" />
           <span className="sidebar-title">LEVEL ALL</span>
         </div>
         <nav className="sidebar-nav">
           <ul>
-            <li>
-              <Link to="/" className="sidebar-btn animated">
-                <span>
-                  <Icon nome="pagina" />
-                </span>
-                Página Inicial
-              </Link>
-            </li>
-            <li>
-              <Link to="/comunidades" className="sidebar-btn animated">
-                <span role="img" aria-label="Comunidades">
-                  <Icon nome="comunidade" />
-                </span>{" "}
-                Comunidades
-              </Link>
-            </li>
-            <li>
-              <Link to="/tags" className="sidebar-btn animated">
-                <span role="img" aria-label="Suas tags">
-                  <Icon nome="tags" />
-                </span>{" "}
-                Suas tags
-              </Link>
-            </li>
-            <li>
-              <Link to="/mensagens" className="sidebar-btn animated">
-                <span role="img" aria-label="Mensagens">
-                  <Icon nome="mensagens" />
-                </span>{" "}
-                Mensagens
-              </Link>
-            </li>
-            <li>
-              <Link to="/notificacoes" className="sidebar-btn animated">
-                <span role="img" aria-label="Notificações">
-                  <Icon nome="notificacoes" />
-                </span>{" "}
-                Notificações
-              </Link>
-            </li>
-            <li>
-              <Link to="/perfil" className="sidebar-btn animated">
-                <span role="img" aria-label="Perfil">
-                  <Icon nome="perfil" />
-                </span>{" "}
-                Perfil
-              </Link>
-            </li>
+            {menuItems.map((item) => (
+              <li key={item.to} className="sidebar-item">
+                <Link
+                  to={item.to}
+                  className={`sidebar-btn animated ${
+                    currentPath === item.to ? "active" : ""
+                  }`}
+                >
+                  <span>
+                    <Icon nome={item.icon} />
+                  </span>
+                  {item.label}
+                </Link>
+              </li>
+            ))}
           </ul>
         </nav>
         <div className="sidebar-footer">

@@ -18,7 +18,7 @@ const ConfirmModal = ({ isOpen, onConfirm, onCancel, message }) => {
       zIndex: 1000
     }}>
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: '#3a3341',
         padding: '20px',
         borderRadius: '8px',
         width: '90%',

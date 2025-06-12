@@ -98,7 +98,7 @@ function Perfil() {
             width: '100%',
             marginTop: 40,
             padding: 28,
-            backgroundColor: '#7a579b',
+            backgroundColor: '#3a3341',
             borderRadius: 12,
             boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
             border: '1px solid #e5e7eb',

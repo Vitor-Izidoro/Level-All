@@ -180,22 +180,18 @@ function EditProfile() {
       <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
       <main className={`main-content ${!sidebarOpen ? 'sidebar-closed' : ''}`}>
-        <header className="main-header">
-          <input className="search-bar" placeholder="Pesquisar..." />
-        </header>
-        
         <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", marginTop: 40 }}>
-          <h2 style={{ color: "#3a3341" }}>Editar Perfil</h2>
-          
           <div style={{ 
             width: "80%", 
             maxWidth: "600px", 
             padding: "20px", 
-            marginTop: "20px", 
+            marginTop: "20px",
+            backgroundColor: '#3a3341', 
             border: "1px solid #ddd", 
             borderRadius: "8px",
             boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
           }}>
+            <h2 style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>Editar Perfil</h2>
             {error && (
               <ErrorMessage message={error} />
             )}
@@ -204,7 +200,8 @@ function EditProfile() {
               <SuccessMessage message="Perfil atualizado com sucesso! Redirecionando..." />
             )}
             
-            <form onSubmit={handleSubmit}>              <div style={{ marginBottom: "15px" }}>
+            <form onSubmit={handleSubmit}>              
+              <div style={{ marginBottom: "15px" }}>
                 <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
                   Nome de Usuário
                 </label>                <input 
@@ -213,7 +210,7 @@ function EditProfile() {
                   value={formData.username} 
                   onChange={handleChange}
                   style={{ 
-                    width: "100%", 
+                    width: "97%", 
                     padding: "8px", 
                     borderRadius: "4px", 
                     border: usernameChanged ? "1px solid #0099ff" : "1px solid #ccc",
@@ -239,7 +236,7 @@ function EditProfile() {
                   onChange={handleChange}
                   required
                   style={{ 
-                    width: "100%", 
+                    width: "97%", 
                     padding: "8px", 
                     borderRadius: "4px", 
                     border: "1px solid #ccc" 
@@ -258,7 +255,7 @@ function EditProfile() {
                   onChange={handleChange}
                   required
                   style={{ 
-                    width: "100%", 
+                    width: "97%", 
                     padding: "8px", 
                     borderRadius: "4px", 
                     border: "1px solid #ccc" 
@@ -278,7 +275,7 @@ function EditProfile() {
                     onChange={handleChange}
                     required
                     style={{ 
-                      width: "100%", 
+                      width: "97%", 
                       padding: "8px", 
                       borderRadius: "4px", 
                       border: "1px solid #ccc" 
@@ -297,7 +294,7 @@ function EditProfile() {
                   onChange={handleChange}
                   placeholder="Deixe em branco para manter a senha atual"
                   style={{ 
-                    width: "100%", 
+                    width: "97%", 
                     padding: "8px", 
                     borderRadius: "4px", 
                     border: "1px solid #ccc" 
@@ -320,7 +317,7 @@ function EditProfile() {
                   onChange={handleChange}
                   placeholder="Confirme a nova senha"
                   style={{ 
-                    width: "100%", 
+                    width: "97%", 
                     padding: "8px", 
                     borderRadius: "4px", 
                     border: "1px solid #ccc" 

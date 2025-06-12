@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../index.css";
+import Icon from "../../assets/icons/icons";
+import logo_site from '../../assets/logos/002.png';
 import ProfileMenu from '../perfil/ProfileMenu';
 import SidebarToggle from '../shared/SidebarToggle';
 import Sidebar from "../shared/Sidebar";
@@ -19,6 +21,7 @@ function LandingPage() {
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [activePostOptions, setActivePostOptions] = useState(null);
   const { autenticado, usuario } = useAuth();
   const navigate = useNavigate();
 
@@ -30,6 +33,11 @@ function LandingPage() {
     { name: "Perfil", path: "/perfil" },
     { name: "Página Inicial", path: "/" }
   ];
+
+  const handleEditPost = (idx) => {
+  console.log("Editar post:", idx);
+  // Aqui você pode abrir um modal, ativar um estado de edição, etc.
+};
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -148,6 +156,8 @@ function LandingPage() {
   return (
     <div className="landing-root">
       <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+      {/* Botão de toggle para sidebar em dispositivos móveis */}
+      <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       <main className={`main-content ${!sidebarOpen ? 'sidebar-closed' : ''}`}>
         <header className="main-header">
           <div className="search-bar-container">
@@ -163,6 +173,7 @@ function LandingPage() {
               }}
               autoComplete="off"
             />
+
             {search && suggestions.length > 0 && (
               <ul className="search-suggestions">
                 {suggestions.map((s, idx) =>
@@ -183,7 +194,12 @@ function LandingPage() {
               onBlur={() => setTimeout(() => setProfileMenuOpen(false), 150)}
               tabIndex={0}
             >
-              <img src="/logo.jpeg" alt="Perfil" className="profile-reddit-img" />
+              <img
+                src={logo_site}
+                alt="Logo Level All"
+                className="logo-img"
+                style={{ background: 'black', width: '48', height: '48', marginRight: '10px' }}
+              />
               <span className="profile-reddit-name">{usuario?.nome || "Usuário"}</span>
               <svg width="18" height="18" style={{marginLeft: 6}} viewBox="0 0 20 20" fill="none">
                 <path d="M6 8l4 4 4-4" stroke="#a48ad4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -284,29 +300,43 @@ function LandingPage() {
             {feed.map((item, idx) => (
               <div className="feed-card" key={idx}>
                 <div className="feed-header">
-      <div className="avatar"></div>
-      <span className="feed-user">{item.user}</span>
-      <span className="feed-handle">{item.handle}</span>
-      {/* Botão de excluir só aparece se for o dono */}
-      {usuario?.id === item.userId && (
-        <button
-          className="delete-post-btn"
-          onClick={() => handleDeletePost(idx)}
-          title="Excluir postagem"
-        >
-          ×
-        </button>
-      )}
-    </div>
-    <div className="feed-content">
-      <p className="feed-text">{item.text}</p>
-      <span className="hashtags">{item.hashtags}</span>
-      {item.image && (
-        <img className="feed-image" src={item.image} alt="Imagem do post" />
-      )}
-    </div>
-  </div>
-))}
+                  <div className="feed-user-group">
+                    <div className="avatar"></div>
+                    <div className="feed-user-info">
+                      <span className="feed-user">{item.user}</span>
+                      <span className="feed-handle">{item.handle}</span>
+                    </div>
+                  </div>
+
+                  {usuario?.id === item.userId && (
+                    <div className="post-options">
+                      <button
+                        className="post-options-toggle"
+                        title="Opções"
+                        onClick={() =>
+                          setActivePostOptions(activePostOptions === idx ? null : idx)
+                        }
+                      >
+                        ⋮
+                      </button>
+                      {activePostOptions === idx && (
+                        <div className="post-options-menu">
+                          <button onClick={() => handleEditPost(idx)}>Editar</button>
+                          <button onClick={() => handleDeletePost(idx)}>Excluir</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              <div className="feed-content">
+                <p className="feed-text">{item.text}</p>
+                <span className="hashtags">{item.hashtags}</span>
+                {item.image && (
+                  <img className="feed-image" src={item.image} alt="Imagem do post" />
+                )}
+              </div>
+            </div>
+          ))}
           </section>
               </main>
               {/* Modal CSS */}
