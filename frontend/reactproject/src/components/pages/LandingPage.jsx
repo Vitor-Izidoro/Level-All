@@ -5,8 +5,6 @@ import logo_site from '../../assets/logos/002.png';
 import SidebarToggle from '../shared/SidebarToggle';
 import Sidebar from "../shared/Sidebar";
 import { useAuth } from "../../context/AuthContext"
-import axios from 'axios';
-import { API_URL } from '../../config/api';
 
 function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
