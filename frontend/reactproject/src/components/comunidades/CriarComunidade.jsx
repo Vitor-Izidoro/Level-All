@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SidebarToggle from './SidebarToggle';
+import SidebarToggle from '../shared/SidebarToggle';
 
 function CriarComunidade() {
   const navigate = useNavigate();

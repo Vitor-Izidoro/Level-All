@@ -1,20 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import LandingPage from "./components/LandingPage";
-import Explorar from "./components/Explorar";
-import SuasTags from "./components/SuasTags";
-import Mensagens from "./components/Mensagens";
-import Notificacoes from "./components/Notificacoes";
-import Perfil from "./components/Perfil";
-import EditProfile from "./components/EditProfile";
-import Comunidades from "./components/Comunidades";
-import Login from "./components/Login";
-import Register from "./components/Register";
-import RotaProtegida from "./components/RotaProtegida";
-import ServerStatus from "./components/ServerStatus";
-import Autenticacao from "./components/Autenticacao"; 
+import LandingPage from "./components/pages/LandingPage";
+import Explorar from "./components/pages/Explorar";
+import SuasTags from "./components/pages/SuasTags";
+import Mensagens from "./components/mensagens/Mensagens";
+import Notificacoes from "./components/pages/Notificacoes";
+import Perfil from "./components/perfil/Perfil";
+import EditProfile from "./components/perfil/EditProfile";
+import Comunidades from "./components/comunidades/Comunidades";
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+import RotaProtegida from "./components/shared/RotaProtegida";
+import ServerStatus from "./components/shared/ServerStatus";
+import Autenticacao from "./components/auth/Autenticacao"; 
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/AuthContext";
-import CriarComunidade from "./components/CriarComunidade";
+import CriarComunidade from "./components/comunidades/CriarComunidade";
 
 function App() {
   return (

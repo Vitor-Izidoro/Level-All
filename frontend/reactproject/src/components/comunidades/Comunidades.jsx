@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import SidebarToggle from './SidebarToggle';
-import { useAuth } from "../context/AuthContext";
+import SidebarToggle from '../shared/SidebarToggle';
+import Sidebar from "../shared/Sidebar";
+import { useAuth } from "../../context/AuthContext";
 
 function Comunidades() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -75,28 +76,9 @@ function Comunidades() {
 
   return (
     <div className="landing-root">
-      <aside className={`sidebar${sidebarOpen ? '' : ' closed'}`}>
-        <div className="sidebar-header">
-          <div className="logo-circle">
-            <img src="/logo.jpeg" alt="Logo Level All" className="logo-img" />
-          </div>
-          <span className="sidebar-title">LEVEL ALL</span>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li><Link to="/" className="sidebar-btn animated">🏠 Página Inicial</Link></li>
-            <li><Link to="/comunidades" className="sidebar-btn animated">👥 Comunidades</Link></li>
-            <li><Link to="/tags" className="sidebar-btn animated">🏷️ Suas tags</Link></li>
-            <li><Link to="/mensagens" className="sidebar-btn animated">💬 Mensagens</Link></li>
-            <li><Link to="/notificacoes" className="sidebar-btn animated">🔔 Notificações</Link></li>
-            <li><Link to="/perfil" className="sidebar-btn animated">👤 Perfil</Link></li>
-          </ul>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="sidebar-btn animated">⚙️ Configurações</button>
-        </div>
-      </aside>
+      <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       
+      {/* Botão de toggle para sidebar em dispositivos móveis */}
       <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       
       <main className={`main-content ${!sidebarOpen ? 'sidebar-closed' : ''}`}>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import SidebarToggle from './SidebarToggle';
+import SidebarToggle from '../shared/SidebarToggle';
+import Sidebar from "../shared/Sidebar";
 import { useNavigate } from 'react-router-dom';
-import { logout, deleteUser } from '../config/api';
-import { useAuth } from '../context/AuthContext';
-import ConfirmModal from './ConfirmModal';
+import { logout, deleteUser } from '../../config/api';
+import { useAuth } from '../../context/AuthContext';
+import ConfirmModal from '../shared/ConfirmModal';
 
 function Perfil() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -83,29 +84,7 @@ function Perfil() {
   };
   
   return (    <div className="landing-root">
-      <aside className={`sidebar${sidebarOpen ? '' : ' closed'}`}>
-        <div className="sidebar-header">
-          <div className="logo-circle">
-            <img src="/logo.jpeg" alt="Logo Level All" className="logo-img" />
-          </div>
-          <span className="sidebar-title">LEVEL ALL</span>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li><a href="/" className="sidebar-btn animated">🏠 Página Inicial</a></li>
-            <li><a href="/comunidades" className="sidebar-btn animated">👥 Comunidades</a></li>
-            <li><a href="/tags" className="sidebar-btn animated">🏷️ Suas tags</a></li>
-            <li><a href="/mensagens" className="sidebar-btn animated">💬 Mensagens</a></li>
-            <li><a href="/notificacoes" className="sidebar-btn animated">🔔 Notificações</a></li>
-            <li><a href="/perfil" className="sidebar-btn animated">👤 Perfil</a></li>
-          </ul>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="sidebar-btn animated">⚙️ Configurações</button>
-        </div>
-        <div className="goto-users-fixed">
-            </div>
-      </aside>
+      <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       
       {/* Botão de toggle para sidebar em dispositivos móveis */}
       <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />

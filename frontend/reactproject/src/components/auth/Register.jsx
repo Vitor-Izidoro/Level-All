@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register } from '../config/api';
+import { register } from '../../config/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({

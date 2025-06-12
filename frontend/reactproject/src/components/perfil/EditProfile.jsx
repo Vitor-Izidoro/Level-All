@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { updateProfile } from '../config/api';
-import { useAuth } from '../context/AuthContext';
-import SidebarToggle from './SidebarToggle';
-import SuccessMessage from './SuccessMessage';
-import ErrorMessage from './ErrorMessage';
-import ConfirmModal from './ConfirmModal';
-import PasswordTips from './PasswordTips';
+import { updateProfile } from '../../config/api';
+import { useAuth } from '../../context/AuthContext';
+import SidebarToggle from '../shared/SidebarToggle';
+import Sidebar from "../shared/Sidebar";
+import SuccessMessage from '../shared/SuccessMessage';
+import ErrorMessage from '../shared/ErrorMessage';
+import ConfirmModal from '../shared/ConfirmModal';
+import PasswordTips from '../auth/PasswordTips';
 import UsernameTips from './UsernameTips';
 
 function EditProfile() {
@@ -173,26 +174,8 @@ function EditProfile() {
 
   return (
     <div className="landing-root">
-      <aside className={`sidebar${sidebarOpen ? '' : ' closed'}`}>
-        <div className="sidebar-header">
-          <div className="logo-circle">
-            <img src="/logo.jpeg" alt="Logo Level All" className="logo-img" />
-          </div>
-          <span className="sidebar-title">LEVEL ALL</span>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li><a href="/" className="sidebar-btn animated">🏠 Página Inicial</a></li>
-            <li><a href="/comunidades" className="sidebar-btn animated">👥 Comunidades</a></li>
-            <li><a href="/tags" className="sidebar-btn animated">🏷️ Suas tags</a></li>
-            <li><a href="/mensagens" className="sidebar-btn animated">💬 Mensagens</a></li>
-            <li><a href="/notificacoes" className="sidebar-btn animated">🔔 Notificações</a></li>
-            <li><a href="/perfil" className="sidebar-btn animated">👤 Perfil</a></li>
+      <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
             
-          </ul>
-        </nav>
-      </aside>
-
       {/* Botão de toggle para sidebar em dispositivos móveis */}
       <SidebarToggle isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Icon from "../../assets/icons/icons";
 
 const ChatArea = ({ contact, currentUser, messages, onSendMessage }) => {
     const [message, setMessage] = useState('');
@@ -287,7 +288,7 @@ const ChatArea = ({ contact, currentUser, messages, onSendMessage }) => {
                     />
                     <i className="fas fa-paperclip" title="Anexar arquivo"></i>
                     <button className="send-button" onClick={handleSend} title="Enviar">
-                        <i className="fas fa-paper-plane"></i>
+                        <Icon nome="enviar" />
                     </button>
                 </div>
             </div>

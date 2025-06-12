@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import SidebarToggle from './SidebarToggle';
+import SidebarToggle from '../shared/SidebarToggle';
 
 function Autenticacao() {
   const location = useLocation();

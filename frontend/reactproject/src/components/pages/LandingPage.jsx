@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../index.css";
-import ProfileMenu from './ProfileMenu';
-import SidebarToggle from './SidebarToggle';
-import { useAuth } from "../context/AuthContext";
-
-
+import "../../index.css";
+import ProfileMenu from '../perfil/ProfileMenu';
+import SidebarToggle from '../shared/SidebarToggle';
+import Sidebar from "../shared/Sidebar";
+import { useAuth } from "../../context/AuthContext"
 
 function LandingPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -148,70 +147,7 @@ function LandingPage() {
 
   return (
     <div className="landing-root">
-      <aside className={`sidebar${sidebarOpen ? '' : ' closed'}`}>
-        <div className="sidebar-header">
-          <div className="logo-circle">
-            <img src="/logo.jpeg" alt="Logo Level All" className="logo-img" />
-          </div>
-          <span className="sidebar-title">LEVEL ALL</span>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li>
-              <Link to="/" className="sidebar-btn animated">
-                <span role="img" aria-label="Página Inicial">🏠</span> Página Inicial
-              </Link>
-            </li>
-            <li>
-              <Link to="/comunidades" className="sidebar-btn animated">
-                <span role="img" aria-label="Comunidades">👥</span> Comunidades
-              </Link>
-            </li>
-            <li>
-              <Link to="/tags" className="sidebar-btn animated">
-                <span role="img" aria-label="Suas tags">🏷️</span> Suas tags
-              </Link>
-            </li>
-            <li>
-              <Link to="/mensagens" className="sidebar-btn animated">
-                <span role="img" aria-label="Mensagens">💬</span> Mensagens
-              </Link>
-            </li>
-            <li>
-              <Link to="/notificacoes" className="sidebar-btn animated">
-                <span role="img" aria-label="Notificações">🔔</span> Notificações
-              </Link>
-            </li>
-            <li>
-              <Link to="/perfil" className="sidebar-btn animated">
-                <span role="img" aria-label="Perfil">👤</span> Perfil
-              </Link>
-            </li>
-            
-          </ul>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="sidebar-btn animated">
-            <span role="img" aria-label="Configurações">⚙️</span> Configurações
-          </button>        </div>
-      </aside>
-      <button
-  className="sidebar-toggle"
-  aria-label="Abrir/fechar menu lateral"
-  onClick={toggleSidebar}
-  style={{
-    position: "fixed",
-    top: 430,
-    left: sidebarOpen ? 210 : 10, // 210px quando aberta, 80px quando fechada
-    zIndex: 200,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    transition: "left 0.3s"
-  }}
->
-  <span style={{ fontSize: 28, lineHeight: 1 }}>☰</span>
-</button>      
+      <Sidebar sidebarOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       <main className={`main-content ${!sidebarOpen ? 'sidebar-closed' : ''}`}>
         <header className="main-header">
           <div className="search-bar-container">

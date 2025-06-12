@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import './ChatApp.css';
 import { getContacts, getUsers, getMessages, createMessage, createContact } from '../../config/api';
+import ErrorNotification from './ErrorNotification';
 
 function ChatApp() {
   const { autenticado, usuario } = useAuth();
@@ -22,7 +23,25 @@ function ChatApp() {
   });
   const [error, setError] = useState(null);
 
-  // Busca usuários para adicionar como contatos
+  const getFriendlyErrorMessage = (error) => {
+    if (error.response) {
+      switch (error.response.status) {
+        case 400: return 'Dados inválidos. Verifique as informações.';
+        case 401: return 'Sessão expirada. Faça login novamente.';
+        case 403: return 'Você não tem permissão para esta ação.';
+        case 404: return 'Recurso não encontrado.';
+        case 500: return 'Erro no servidor. Tente novamente mais tarde.';
+        default: return error.response.data?.error || 'Erro na operação.';
+      }
+    } else if (error.message.includes('Network Error')) {
+      return 'Sem conexão com o servidor. Verifique sua internet.';
+    } else if (error.message.includes('timeout')) {
+      return 'A operação demorou muito. Tente novamente.';
+    } else {
+      return error.message || 'Ocorreu um erro inesperado.';
+    }
+  };
+
   const handleSearchContact = async () => {
     if (!searchContact.trim()) return;
 
@@ -37,60 +56,53 @@ function ChatApp() {
       setError(null);
     } catch (err) {
       console.error('Erro na busca de contatos:', err);
-      setError('Erro ao buscar contatos');
+      setError(getFriendlyErrorMessage(err));
       setSearchResults([]);
     } finally {
       setLoading(prev => ({ ...prev, search: false }));
     }
   };
 
-  // Adiciona novo contato
-const handleAddContact = async (contact) => {
-  if (!usuario?.id || !contact?.id) {
-    setError('Dados inválidos para adicionar contato');
-    return;
-  }
-
-  try {
-    const newContact = {
-      user_id: usuario.id,
-      contact_id: contact.id,
-    };
-
-    // Tenta criar o relacionamento no backend
-    const newContactMetadata = await createContact(newContact);
-
-    if (!newContactMetadata?.id) {
-      throw new Error('Dados inválidos ao criar contato');
+  const handleAddContact = async (contact) => {
+    if (!usuario?.id || !contact?.id) {
+      setError('Não foi possível adicionar o contato. Dados incompletos.');
+      return;
     }
 
-    setError(''); // limpa erros
-    // Aqui você pode atualizar o estado com o novo contato, exibir mensagem, etc
-    console.log('Contato criado com sucesso:', newContactMetadata);
-    
-    setMergedContacts(prev => [...prev, newContactMetadata]);
+    try {
+      const newContact = {
+        user_id: usuario.id,
+        contact_id: contact.id,
+      };
 
-  } catch (error) {
-    // Se o erro veio da API, tenta mostrar mensagem detalhada
-    if (error.response?.data?.error) {
-      setError(error.response.data.error);
-    } else {
-      setError(error.message || 'Erro ao adicionar contato');
+      const newContactMetadata = await createContact(newContact);
+
+      if (!newContactMetadata?.id) {
+        throw new Error('Dados inválidos ao criar contato');
+      }
+
+      setError(null);
+      setMergedContacts(prev => [...prev, {
+        ...contact,
+        contact_metadata: newContactMetadata
+      }]);
+      setShowAddContact(false);
+      setSearchContact('');
+      setSearchResults([]);
+      
+    } catch (error) {
+      setError(getFriendlyErrorMessage(error));
     }
-  }
-};
+  };
 
-
-
-  // Envia mensagem
   const handleSendMessage = async (msgText) => {
     if (!selectedContact || !msgText.trim() || !selectedContact.contact_metadata?.id) return;
 
     try {
       const newMsg = {
-        contact_id: selectedContact.contact_metadata.id, // ID do relacionamento de contato
-        remetente_id: usuario.id,                      // Quem está enviando
-        destinatario_id: selectedContact.id,           // ID do outro usuário
+        contact_id: selectedContact.contact_metadata.id,
+        remetente_id: usuario.id,
+        destinatario_id: selectedContact.id,
         conteudo: msgText
       };
 
@@ -98,92 +110,95 @@ const handleAddContact = async (contact) => {
       setMessages(prev => [...prev, savedMsg]);
     } catch (err) {
       console.error('Erro ao enviar mensagem:', err);
-      setError('Erro ao enviar mensagem');
+      setError(getFriendlyErrorMessage(err));
     }
   };
 
-  // Quando seleciona um contato
   const handleSelectContact = (contact) => {
     setSelectedContact(contact);
   };
 
-  // Carrega mensagens ao trocar de contato
+  const loadMessages = async (contact) => {
+    if (!contact || !contact.contact_metadata?.id) return;
+
+    try {
+      setLoading(prev => ({ ...prev, messages: true }));
+      const chatMessages = await getMessages(contact.contact_metadata.id);
+      const filteredMessages = chatMessages.filter(
+        msg => msg.contact_id === contact.contact_metadata.id
+      );
+      setMessages(filteredMessages);
+      setError(null);
+    } catch (err) {
+      console.error('Erro ao carregar mensagens:', err);
+      setError(getFriendlyErrorMessage(err));
+      setMessages([]);
+    } finally {
+      setLoading(prev => ({ ...prev, messages: false }));
+    }
+  };
+
   useEffect(() => {
-    const loadMessages = async () => {
-      if (!selectedContact || !selectedContact.contact_metadata?.id) return;
-
-      try {
-        setLoading(prev => ({ ...prev, messages: true }));
-        const chatMessages = await getMessages(selectedContact.contact_metadata.id);
-        
-        // Filtra mensagens para garantir que pertencem a este contato
-        const filteredMessages = chatMessages.filter(
-          msg => msg.contact_id === selectedContact.contact_metadata.id
-        );
-        
-        setMessages(filteredMessages);
-        setError(null);
-      } catch (err) {
-        console.error('Erro ao carregar mensagens:', err);
-        setError('Erro ao carregar mensagens');
-        setMessages([]);
-      } finally {
-        setLoading(prev => ({ ...prev, messages: false }));
-      }
-    };
-
-    loadMessages();
+    if (selectedContact) {
+      loadMessages(selectedContact);
+    }
   }, [selectedContact]);
 
-  // Carrega contatos e mescla dados do usuário com metadados da tabela de contatos
+  const loadContacts = async () => {
+    if (!usuario?.id) return;
+
+    try {
+      setLoading(prev => ({ ...prev, contacts: true }));
+      const [usersData, contactsData] = await Promise.all([
+        getUsers(),
+        getContacts(usuario.id)
+      ]);
+
+      const mergedContactsArray = usersData
+        .filter(user =>
+          contactsData.some(contact => contact.contact_id === user.id)
+        )
+        .map(user => {
+          const contactInfo = contactsData.find(
+            contact => contact.contact_id === user.id
+          );
+          return {
+            ...user,
+            contact_metadata: {
+              ...contactInfo
+            }
+          };
+        });
+
+      setMergedContacts(mergedContactsArray);
+      setError(null);
+    } catch (err) {
+      console.error('Erro ao carregar contatos:', err);
+      setError(getFriendlyErrorMessage(err));
+      setMergedContacts([]);
+    } finally {
+      setLoading(prev => ({ ...prev, contacts: false }));
+    }
+  };
+
   useEffect(() => {
-    const fetchContacts = async () => {
-      if (!usuario?.id) return;
-
-      try {
-        setLoading(prev => ({ ...prev, contacts: true }));
-        const [usersData, contactsData] = await Promise.all([
-          getUsers(),
-          getContacts(usuario.id) // Assumindo que getContacts pode filtrar por user_id
-        ]);
-
-        const mergedContactsArray = usersData
-          .filter(user =>
-            contactsData.some(contact => contact.contact_id === user.id)
-          )
-          .map(user => {
-            const contactInfo = contactsData.find(
-              contact => contact.contact_id === user.id
-            );
-            return {
-              ...user,
-              contact_metadata: {
-                ...contactInfo
-              }
-            };
-          });
-
-        setMergedContacts(mergedContactsArray);
-        setError(null);
-      } catch (err) {
-        console.error('Erro ao carregar contatos:', err);
-        setError('Erro ao carregar contatos');
-        setMergedContacts([]);
-      } finally {
-        setLoading(prev => ({ ...prev, contacts: false }));
-      }
-    };
-
-    fetchContacts();
+    loadContacts();
   }, [usuario]);
 
   return (
     <div className="app-container">
       {error && (
-        <div className="error-message">
-          {error}
-          <button onClick={() => setError(null)}>×</button>
-        </div>
+        <ErrorNotification 
+          error={error}
+          onDismiss={() => setError(null)}
+          onRetry={() => {
+            if (error.includes('carregar mensagens')) {
+              loadMessages(selectedContact);
+            } else if (error.includes('carregar contatos')) {
+              loadContacts();
+            }
+          }}
+        />
       )}
 
       <ContactList

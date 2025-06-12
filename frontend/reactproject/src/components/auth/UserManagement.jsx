@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUsers, deleteUser } from '../config/api';
+import { getUsers, deleteUser } from '../../config/api';
 import UserForm from './UserForm';
 import UserList from './UserList';
 import '../styles/UserManagement.css';

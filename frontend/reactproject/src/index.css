@@ -33,6 +33,7 @@ body, html, #root {
 
 .sidebar.closed {
   transform: translateX(-100%); /* Esconde a sidebar */
+  background-color: #312936;
 }
 
 /* Responsividade para a sidebar */
@@ -85,8 +86,8 @@ body, html, #root {
 }
 
 .logo-circle {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   background: #a48ad4;
   border-radius: 50%;
   display: flex;
@@ -109,8 +110,8 @@ body, html, #root {
 }
 
 .logo-img {
-  width: 48px;
-  height: 48px;
+  width: 68px;
+  height: 68px;
   object-fit: cover;
   border-radius: 50%;
 }
